@@ -1,6 +1,6 @@
 package main
 
-// https://adventofcode.com/2023/day/XX
+// https://adventofcode.com/2023/day/2
 
 import (
 	"fmt"
@@ -9,11 +9,11 @@ import (
 )
 
 func main() {
-	ProcessStep1("aoc23/dayXX/example.txt")
-	ProcessStep1("aoc23/dayXX/input.txt")
+	ProcessStep1("aoc23/day02/example.txt")
+	ProcessStep1("aoc23/day02/input.txt")
 
-	ProcessStep2("aoc23/dayXX/example.txt")
-	ProcessStep2("aoc23/dayXX/input.txt")
+	ProcessStep2("aoc23/day02/example.txt")
+	ProcessStep2("aoc23/day02/input.txt")
 }
 
 func ProcessStep1(name string) {
