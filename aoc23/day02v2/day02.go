@@ -4,17 +4,18 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"io"
 
 	"git.bind.ch/phil/challenges/lib"
+	"git.bind.ch/phil/challenges/lib/parser"
 )
 
 func main() {
-	ProcessStep1("aoc23/day02/example.txt")
-	ProcessStep1("aoc23/day02/input.txt")
+	ProcessStep1("aoc23/day02v2/example.txt")
+	ProcessStep1("aoc23/day02v2/input.txt")
 
-	ProcessStep2("aoc23/day02/example.txt")
-	ProcessStep2("aoc23/day02/input.txt")
+	ProcessStep2("aoc23/day02v2/example.txt")
+	ProcessStep2("aoc23/day02v2/input.txt")
 }
 
 func ProcessStep1(name string) {
@@ -105,39 +106,42 @@ func LoadGames(lines []string) Games {
 
 // Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
 func ParseGame(l string) Game {
-	var nr int
-	if n, err := fmt.Sscanf(l, "Game %d:", &nr); n != 1 || err != nil {
-		panic(fmt.Errorf("failed to parse game, n=%d, err=%v, input=%q", n, err, l))
+	p := parser.New()
+	p.SetString(l)
+	if !p.AcceptString("Game") {
+		panic(p.Error())
 	}
-	parts := strings.Split(l, ":")
-	if len(parts) != 2 {
-		panic("input should have two : parts")
+	nr, ok := p.Int()
+	if !ok {
+		panic(p.Error())
 	}
-	sets := parts[1]
+	if !p.Accept(':') {
+		panic(p.Error())
+	}
 	return Game{
 		Nr:   nr,
-		Sets: ParseSets(sets),
+		Sets: ParseSets(p),
 	}
 }
 
-func ParseSets(input string) []Set {
-	setss := strings.Split(input, ";")
+func ParseSets(p *parser.Parser) []Set {
 	var rv []Set
-	for _, s := range setss {
-		rv = append(rv, ParsetSet(strings.TrimSpace(s)))
+	for p.Error() != io.EOF {
+		rv = append(rv, ParsetSet(p))
 	}
 	return rv
 }
 
-func ParsetSet(s string) Set {
-	parts := strings.Split(s, ",")
+func ParsetSet(p *parser.Parser) Set {
 	var rv Set
-	for _, p := range parts {
-		p := strings.TrimSpace(p)
-		var num int
-		var color string
-		if n, err := fmt.Sscanf(p, "%d %s", &num, &color); n != 2 || err != nil {
-			panic(fmt.Errorf("failed to parse set, n=%d, err=%v, input=%q", n, err, p))
+	for {
+		num, ok := p.Int()
+		if !ok {
+			panic(p.Error())
+		}
+		color, ok := p.String()
+		if !ok {
+			panic(p.Error())
 		}
 		switch color {
 		case "blue":
@@ -149,8 +153,10 @@ func ParsetSet(s string) Set {
 		default:
 			panic(fmt.Errorf("invalid color: %q", color))
 		}
+		if next, ok := p.String(); !ok || next == ";" {
+			return rv
+		}
 	}
-	return rv
 }
 
 func (x Games) FindPossible(red, green, blue int) []Game {

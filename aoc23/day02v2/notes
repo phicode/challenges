@@ -1,0 +1,13 @@
+input: aoc23/day02/example.txt
+possible games found: 3
+sum of IDs: 8
+
+input: aoc23/day02/input.txt
+possible games found: 50
+sum of IDs: 2810
+
+input: aoc23/day02/example.txt
+sum of power: 2286
+
+input: aoc23/day02/input.txt
+sum of power: 69110
