@@ -21,7 +21,6 @@ func main() {
 func ProcessStep1(name string) {
 	fmt.Println("input:", name)
 	lines := lib.ReadLines(name)
-	_ = lines
 
 	games := LoadGames(lines)
 	possible := games.FindPossible(12, 13, 14)
@@ -38,7 +37,6 @@ func ProcessStep1(name string) {
 func ProcessStep2(name string) {
 	fmt.Println("input:", name)
 	lines := lib.ReadLines(name)
-	_ = lines
 
 	games := LoadGames(lines)
 	minimums := games.MinColors()
