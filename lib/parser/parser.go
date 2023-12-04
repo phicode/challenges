@@ -38,7 +38,7 @@ func (p *Parser) AcceptString(str string) bool {
 	if text == str {
 		return true
 	}
-	p.err = fmt.Errorf("expected token %q, got %q", str, text)
+	p.err = fmt.Errorf("%v - expected token %q, got %q", p.scanner.Pos(), str, text)
 	return false
 }
 func (p *Parser) Accept(r rune) bool {
@@ -53,7 +53,7 @@ func (p *Parser) Accept(r rune) bool {
 	if token == r {
 		return true
 	}
-	p.err = fmt.Errorf("expected token %c(%d), got %c(%d)", r, r, token, token)
+	p.err = fmt.Errorf("%v - expected token %c(%d), got %c(%d)", p.scanner.Pos(), r, r, token, token)
 	return false
 }
 
@@ -70,7 +70,7 @@ func (p *Parser) Int() (int, bool) {
 	if err == nil {
 		return value, true
 	}
-	p.err = err
+	p.err = fmt.Errorf("%v - %w", p.scanner.Pos(), err)
 	return 0, false
 }
 
