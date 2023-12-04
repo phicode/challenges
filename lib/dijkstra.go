@@ -29,8 +29,9 @@ func Dijkstra[T comparable](data []T, start func(a T) bool, neigh func(t T) []T)
 			}
 			alt := u.Distance + 1
 			if alt < v.Distance {
-				v.Distance = alt
 				v.Prev = u
+				v.Distance = alt
+				// changing the distance requires the heap to be fixed
 				q.Fix(v.idx)
 			}
 		}

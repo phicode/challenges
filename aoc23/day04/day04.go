@@ -86,7 +86,7 @@ func (c Card) Points() int {
 func ParseCard(l string) Card {
 	var c Card
 	if n, err := fmt.Sscanf(l, "Card %d:", &c.Num); n != 1 || err != nil {
-		panic(fmt.Errorf("Parse error, n=%d, err=%v", n, err))
+		panic(fmt.Errorf("parse error, n=%d, err=%v", n, err))
 	}
 	byColon := strings.Split(l, ":")
 	if len(byColon) != 2 {
