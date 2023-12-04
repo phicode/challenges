@@ -12,6 +12,9 @@ import (
 
 var debug = 1
 
+const reduce = false
+const findRepetitions = true
+
 func main() {
 	fmt.Println("Example debug")
 	Process("aoc22/day17/example.txt", 11)
@@ -297,10 +300,17 @@ func Run(lines []string, rocksToPlace int) *Cave {
 		c.Print("after gravity", 2)
 
 		// space saving stuff
-		if i > 0 && i%100_000 == 0 {
-			c.Reduce()
-			if i%1_000_000 == 0 {
-				fmt.Printf("i=%d rocks-placed: %d\n", i, c.RocksPlaced)
+		if reduce {
+			if i > 0 && i%100_000 == 0 {
+				c.Reduce()
+				if i%1_000_000 == 0 {
+					fmt.Printf("i=%d rocks-placed: %d\n", i, c.RocksPlaced)
+				}
+			}
+		}
+		if findRepetitions {
+			if i > 0 && i%100_000 == 0 {
+				c.FindRepetitions()
 			}
 		}
 	}
@@ -384,6 +394,9 @@ func (c *Cave) FixRock() {
 	}
 	c.ActiveRock = nil
 	c.RocksPlaced++
+	if c.RocksPlaced > 2000 {
+		c.FindRepetitions()
+	}
 }
 
 func (c *Cave) Grow() {
@@ -434,6 +447,27 @@ func (c *Cave) FindFull() int {
 		}
 	}
 	return -1
+}
+
+func (c *Cave) FindRepetitions() {
+	// find two complete repetitions
+	maxlen := c.Height() / 2
+	for maxlen > 1 {
+		if !c.CheckRepetition(maxlen) {
+			fmt.Println("repetition found after:", maxlen)
+			os.Exit(0)
+		}
+		maxlen--
+	}
+}
+
+func (c *Cave) CheckRepetition(maxlen int) bool {
+	for i := 0; i < maxlen; i++ {
+		if c.Lines[i] != c.Lines[maxlen+i] {
+			return false
+		}
+	}
+	return true
 }
 
 func Merge(a, b []Line, offset int) []Line {
