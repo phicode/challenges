@@ -178,8 +178,6 @@ func NewSolverStep2(g Grid) *SolverStep2 {
 	}
 }
 
-type Acc map[Pos]int
-
 func (s *SolverStep2) SymbolVisitor(g Grid, x, y int) {
 	// only consider gears
 	if g.Get(x, y) != '*' {

@@ -10,16 +10,30 @@ import (
 	"slices"
 )
 
+var debug = 1
+
 func main() {
-	Process("aoc22/day17/example.txt")
-	//Process("aoc22/day17/input.txt")
+	fmt.Println("Example debug")
+	Process("aoc22/day17/example.txt", 11)
+	debug = 0
+	fmt.Println("Example")
+	Process("aoc22/day17/example.txt", 2022)
+
+	fmt.Println("Step 1")
+	Process("aoc22/day17/input.txt", 2022)
+
+	fmt.Println("Step 2")
+	Process("aoc22/day17/input.txt", 1000000000000)
 }
 
-func Process(name string) {
+func Process(name string, rocksToPlace int) {
 	fmt.Println("input:", name)
 	lines := ReadInput(name)
 
-	Run(lines)
+	c := Run(lines, rocksToPlace)
+	fmt.Println("height:", c.Height())
+	fmt.Println("removed:", c.Removed)
+	fmt.Println("total:", c.Height()+c.Removed)
 
 	fmt.Println()
 }
@@ -55,6 +69,7 @@ var (
 		LineS("##"),
 		LineS("##"),
 	)
+	Full = LineS("#######")
 )
 
 func NewRock(ls ...Line) Rock {
@@ -92,7 +107,10 @@ type Cave struct {
 	Lines         []Line
 	NextRockIndex int
 	ActiveRock    Rock
-	RockOffset    int // index
+	RockOffset    int // how far of the floor the rock is
+	RocksToPlace  int
+	RocksPlaced   int
+	Removed       int
 }
 
 func (c *Cave) Render(w *bytes.Buffer) {
@@ -110,9 +128,9 @@ func (c *Cave) Fill() {
 		}
 	}
 	if pad > 0 {
-		fmt.Println("padding", pad, "lines")
+		//fmt.Println("padding", pad, "lines")
 		for i := 0; i < pad; i++ {
-			c.Lines = append(c.Lines, Line(0))
+			c.Grow()
 		}
 	}
 }
@@ -140,6 +158,10 @@ func LineB(content []byte) Line {
 
 func (l Line) IsEmpty() bool {
 	return l == 0
+}
+
+func (l Line) IsFull() bool {
+	return l == Full
 }
 
 func (l Line) Intersects(b Line) bool {
@@ -249,39 +271,40 @@ func (r Rock) Render(w *bytes.Buffer) {
 
 ////////////////////////////////////////////////////////////
 
-func Run(lines []string) {
+func Run(lines []string, rocksToPlace int) *Cave {
 	if len(lines) > 1 {
 		panic("too many lines")
 	}
 	input := []rune(lines[0])
-	c := &Cave{}
+	c := &Cave{
+		RocksToPlace: rocksToPlace,
+	}
 
-	for i := 0; ; i++ {
+	for i := 0; !c.Finished(); i++ {
 		move := input[i%len(input)]
 		if len(c.ActiveRock) == 0 {
 			c.Fill()
-			fmt.Println("spawning rock")
-			c.ActiveRock = Rocks[c.NextRockIndex%len(Rocks)].Copy()
-			// move to to the right
-			c.ActiveRock = c.ActiveRock.MoveRight()
-			c.ActiveRock = c.ActiveRock.MoveRight()
-			c.NextRockIndex++
-			c.RockOffset = len(c.Lines)
-			c.Print()
+			c.SpawnRock()
 		}
-		if move == '>' {
-			fmt.Println("wind right")
-		} else {
-			fmt.Println("wind left")
+		title := "after move right"
+		if move == '<' {
+			title = "after move left"
 		}
 		c.ApplyMove(move)
-		c.Print()
+		c.Print(title, 2)
 
-		fmt.Println("gravity")
 		c.ApplyGravity()
-		c.Print()
+		c.Print("after gravity", 2)
 
+		// space saving stuff
+		if i > 0 && i%100_000 == 0 {
+			c.Reduce()
+			if i%1_000_000 == 0 {
+				fmt.Printf("i=%d rocks-placed: %d\n", i, c.RocksPlaced)
+			}
+		}
 	}
+	return c
 }
 
 func Render(w *bytes.Buffer, m []Line) {
@@ -316,18 +339,21 @@ func (c *Cave) ApplyMove(move rune) {
 
 func (c *Cave) ApplyGravity() {
 	c.RockOffset--
-	if c.RockOffset == 0 {
+	if c.RockOffset == -1 {
+		c.RockOffset++
 		c.FixRock()
-		c.ActiveRock = nil
 	}
 	if c.Intersects() {
 		c.RockOffset++
 		c.FixRock()
-		c.ActiveRock = nil
 	}
 }
 
-func (c *Cave) Print() {
+func (c *Cave) Print(title string, level int) {
+	if level > debug {
+		return
+	}
+	fmt.Println(title)
 	var b bytes.Buffer
 	m := Merge(c.Lines, c.ActiveRock, c.RockOffset)
 	Render(&b, m)
@@ -352,10 +378,62 @@ func (c *Cave) FixRock() {
 	for i := 0; i < len(c.ActiveRock); i++ {
 		idx := i + c.RockOffset
 		if len(c.Lines) <= idx {
-			c.Lines = append(c.Lines, Line(0))
+			c.Grow()
 		}
 		c.Lines[idx] = c.Lines[idx].Merge(c.ActiveRock[i])
 	}
+	c.ActiveRock = nil
+	c.RocksPlaced++
+}
+
+func (c *Cave) Grow() {
+	c.Lines = append(c.Lines, Line(0))
+}
+
+func (c *Cave) Finished() bool {
+	return c.RocksPlaced >= c.RocksToPlace
+}
+
+func (c *Cave) SpawnRock() {
+	c.ActiveRock = Rocks[c.NextRockIndex%len(Rocks)].Copy()
+	// move to 2 spaces away from left wall
+	c.ActiveRock = c.ActiveRock.MoveRight()
+	c.ActiveRock = c.ActiveRock.MoveRight()
+	c.NextRockIndex++
+	c.RockOffset = len(c.Lines)
+	c.Print("spawn rock", 1)
+}
+
+func (c *Cave) Height() int {
+	// index of the highest line which is not empty
+	h := len(c.Lines) - 1
+	for h >= 0 {
+		if !c.Lines[h].IsEmpty() {
+			break
+		}
+		h--
+	}
+	return h + 1
+}
+
+func (c *Cave) Reduce() {
+	full := c.FindFull()
+	if full < 0 {
+		return
+	}
+	c.Removed += full + 1
+	copy(c.Lines[:], c.Lines[full+1:])
+	kept := len(c.Lines) - full - 1
+	c.Lines = c.Lines[:kept]
+}
+
+func (c *Cave) FindFull() int {
+	for i := len(c.Lines) - 1; i >= 0; i-- {
+		if c.Lines[i].IsFull() {
+			return i
+		}
+	}
+	return -1
 }
 
 func Merge(a, b []Line, offset int) []Line {
