@@ -239,8 +239,51 @@ func (m *Map) Translate(x int) int {
 	return x
 }
 
+type TranslateProgress struct {
+	Ranges []Range
+}
+
+// handle the part of Range `x` that comes before Translation `t`.
+func (x Range) Translate(t Translation) []Range {
+	if x.Max() < t.Start {
+		// the entire range is before the translation range
+		// nothing changes
+		return []Range{x}
+	}
+	if x.Start > t.Max() {
+		// the entire range is after the translation range
+		// nothing changes
+		return []Range{x}
+	}
+	var rv []Range
+	// the part of x before t
+	if x.Start < t.Start && x.Max() >= t.Start {
+		before := Range{x.Start, t.Start - x.Start}
+		rv = append(rv, before)
+	}
+	// the part of x after t
+	if x.Start <= t.Max() && x.Max() > t.Max() {
+		after := Range{t.Max() + 1, x.Max() - t.Max()}
+		rv = append(rv, after)
+	}
+	// the overlapping part
+	// first extract the overlapping part
+	// then apply the tranlsation as dictated by 't'
+	panic("todo")
+}
+
 func (m *Map) TranslateRange(x Range) (int, []Range) {
 	l := len(m.Ranges)
+
+	//tp := TranslateProgress{}
+	//tp.handleBefore(x, m.Ranges[0])
+	//for i, r := range m.Ranges {
+	//	tp.handleRange(x, r)
+	//	if i+1 < l {
+	//		tp.handleBetween(x, r, m.Ranges[i+1])
+	//	}
+	//}
+	//tp.handleAfter(x, m.Ranges[l-1])
 
 	//out := make([]Range, 0, 16)
 
