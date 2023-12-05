@@ -10,7 +10,7 @@ import (
 	"git.bind.ch/phil/challenges/lib"
 )
 
-var debug = false
+var debug = 1
 
 func main() {
 	ProcessStep1("aoc23/day05/example.txt")
@@ -75,7 +75,7 @@ func ParseInput(ls []string) *Input {
 		if n, err := fmt.Sscanf(l, "%d %d %d", &r.Dst, &r.Range.Start, &r.Range.N); n != 3 || err != nil {
 			panic(fmt.Errorf("invalid range input, n=%d, err=%w", n, err))
 		}
-		currentMap.Ranges = append(currentMap.Ranges, r)
+		currentMap.Translations = append(currentMap.Translations, r)
 	}
 	input.SortRanges()
 	return input
@@ -88,7 +88,7 @@ type Input struct {
 
 func (in *Input) SortRanges() {
 	for _, m := range in.Maps {
-		sort.Sort(SortBySource(m.Ranges))
+		sort.Sort(TranslationBySource(m.Translations))
 	}
 }
 
@@ -96,20 +96,6 @@ func (in *Input) Run() {
 	var lowest int
 	for i, seed := range in.Seeds {
 		v := in.TranslateSeed(seed)
-		if i == 0 {
-			lowest = v
-		} else {
-			lowest = min(lowest, v)
-		}
-	}
-	fmt.Println("Lowest location:", lowest)
-}
-
-func (in *Input) RunStep2() {
-	var lowest int
-	n := len(in.Seeds) / 2
-	for i := 0; i < n; i += 2 {
-		v := in.TranslateSeedStep2(in.Seeds[i], in.Seeds[i+1])
 		if i == 0 {
 			lowest = v
 		} else {
@@ -127,39 +113,13 @@ func (in *Input) TranslateSeed(value int) int {
 	return value
 }
 
-func (in *Input) TranslateSeedStep2(start, num int) int {
-	t := "seed"
-	ranges := []Range{{start, num}}
-	var low int
-	for t != "location" {
-		t, low, ranges = in.TranslateRanges(t, ranges)
-	}
-	return low
-}
-
 func (in *Input) Translate(t string, value int) (string, int) {
 	m := in.FindMap(t)
 	out := m.Translate(value)
-	if debug {
+	if debug >= 2 {
 		fmt.Printf("%s -> %s: %d -> %d\n", m.From, m.To, value, out)
 	}
 	return m.To, out
-}
-
-func (in *Input) TranslateRanges(t string, ranges []Range) (string, int, []Range) {
-	var outranges []Range
-	m := in.FindMap(t)
-	var lowest int
-	for i, r := range ranges {
-		l, out := m.TranslateRange(r)
-		outranges = append(outranges, out...)
-		if i == 0 {
-			lowest = l
-		} else {
-			lowest = min(lowest, l)
-		}
-	}
-	return m.To, lowest, outranges
 }
 
 func (in *Input) FindMap(t string) *Map {
@@ -181,139 +141,216 @@ func (t Range) Max() int {
 	return t.Start + t.N - 1
 }
 
-func (r Range) Overlaps(b Range) bool {
-	return !(r.Start > b.Max() || b.Start > r.Max())
-}
-
 type Translation struct {
 	Range
 	Dst int
 }
 
 func (r Range) Matches(x int) bool {
-	return x >= r.Start && x < r.Start+r.N
+	return x >= r.Start && x <= r.Max()
+}
+func (r Range) MatchesRange(b Range) bool {
+	return !(b.Max() < r.Start || r.Max() < b.Start)
 }
 
 func (r Translation) Translate(x int) int {
-	offset := x - r.Start
-	return r.Dst + offset
+	offset := r.Dst - r.Start
+	return x + offset
 }
 
 type Map struct {
-	From   string
-	To     string
-	Ranges []Translation // sorted by Source field
+	From         string
+	To           string
+	Translations []Translation // sorted by Source field
 }
 
 func (m *Map) Translate(x int) int {
-	l := len(m.Ranges)
-	if x < m.Ranges[0].Start {
+	l := len(m.Translations)
+	if x < m.Translations[0].Start {
 		return x
 	}
-	last := m.Ranges[l-1]
+	last := m.Translations[l-1]
 	if x > last.Max() {
 		return x
 	}
 
-	for _, r := range m.Ranges {
-		if r.Matches(x) {
-			return r.Translate(x)
+	for _, t := range m.Translations {
+		if t.Matches(x) {
+			return t.Translate(x)
 		}
 	}
 
 	// binary search version, not really needed for such small input sets
-	//searchFunc := func(idx int) bool { return m.Ranges[idx].Src >= x }
+	//searchFunc := func(idx int) bool { return m.Translations[idx].Src >= x }
 	//pos := sort.Search(l, searchFunc)
 	//// pos is either an exact match, or one above
 	//if pos != l {
-	//	if m.Ranges[pos].Matches(x) {
-	//		return m.Ranges[pos].Translate(x)
+	//	if m.Translations[pos].Matches(x) {
+	//		return m.Translations[pos].Translate(x)
 	//	}
 	//}
 	//if pos > 0 {
-	//	if m.Ranges[pos-1].Matches(x) {
-	//		return m.Ranges[pos-1].Translate(x)
+	//	if m.Translations[pos-1].Matches(x) {
+	//		return m.Translations[pos-1].Translate(x)
 	//	}
 	//}
 
 	return x
 }
 
-type TranslateProgress struct {
-	Ranges []Range
+////////////////////////////////////////////////////////////
+
+type TranslationBySource []Translation
+
+var _ sort.Interface = TranslationBySource(nil)
+
+func (s TranslationBySource) Len() int           { return len(s) }
+func (s TranslationBySource) Less(i, j int) bool { return s[i].Start < s[j].Start }
+func (s TranslationBySource) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
 }
 
+type RangeBySource []Range
+
+var _ sort.Interface = RangeBySource(nil)
+
+func (s RangeBySource) Len() int           { return len(s) }
+func (s RangeBySource) Less(i, j int) bool { return s[i].Start < s[j].Start }
+func (s RangeBySource) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+////////////////////////////////////////////////////////////
+// PART2
+
+func (in *Input) RunStep2() {
+	var low int
+	n := len(in.Seeds)
+	for i := 0; i < n-1; i += 2 {
+		v := in.TranslateSeedStep2(in.Seeds[i], in.Seeds[i+1])
+		if i == 0 {
+			low = lowest(v)
+		} else {
+			low = min(lowest(v), low)
+		}
+		// validation that all ranges together make up the same range as we started with
+		var sum int
+		for _, r := range v {
+			sum += r.N
+		}
+		if sum != in.Seeds[i+1] {
+			panic("invalid state")
+		}
+	}
+	fmt.Println("Lowest location:", low)
+}
+
+func (in *Input) TranslateSeedStep2(start, num int) []Range {
+	t := "seed"
+	values := []Range{{start, num}}
+	for t != "location" {
+		t, values = in.TranslateRanges(t, values)
+	}
+	return values
+}
+
+func lowest(values []Range) int {
+	low := values[0].Start
+	for _, v := range values {
+		low = min(low, v.Start)
+	}
+	if debug >= 1 {
+		fmt.Printf("lowest of %d: %d\n", len(values), low)
+	}
+	return low
+}
+
+func (in *Input) TranslateRanges(t string, inputs []Range) (string, []Range) {
+	var rv []Range
+	m := in.FindMap(t)
+	if debug >= 2 {
+		fmt.Println(t, "- applying", len(m.Translations), "transformation")
+	}
+	for _, input := range inputs {
+		out := m.TranslateRange(input)
+		rv = append(rv, out...)
+	}
+	return m.To, rv
+}
+
+func (m *Map) TranslateRange(input Range) []Range {
+	// var xs []Range
+	//nummatches := 0
+
+	var rv []Range
+	var remainder = []Range{input}
+	for _, t := range m.Translations {
+		if !t.MatchesRange(input) {
+			continue
+		}
+		//nummatches++
+		var newremainder []Range
+		for _, x := range remainder {
+			result, rem := x.Translate(t)
+			rv = append(rv, result)
+			newremainder = append(newremainder, rem...)
+		}
+		remainder = newremainder
+	}
+	//if nummatches != 1 {
+	//	fmt.Println("nummatches != 1")
+	//}
+	rv = append(rv, remainder...)
+	//TestMerge(xs)
+	return rv
+}
+
+func TestMerge(xs []Range) {
+	sort.Sort(RangeBySource(xs))
+	for i := 0; i < len(xs)-1; i++ {
+		if xs[i].Max() == xs[i+1].Start-1 {
+			//fmt.Println("ranges are mergeable")
+		}
+	}
+}
+
+func (t Translation) String() string {
+	return fmt.Sprintf("%d-%d:%d", t.Start, t.Max(), t.Dst-t.Start)
+}
+
+type Ranges []Range
+
 // handle the part of Range `x` that comes before Translation `t`.
-func (x Range) Translate(t Translation) []Range {
+func (x Range) Translate(t Translation) (Range, []Range) {
 	if x.Max() < t.Start {
+		panic("invalid state")
 		// the entire range is before the translation range
 		// nothing changes
-		return []Range{x}
+		//return []Range{x}
 	}
 	if x.Start > t.Max() {
+		panic("invalid state")
 		// the entire range is after the translation range
 		// nothing changes
-		return []Range{x}
+		//return []Range{x}
 	}
-	var rv []Range
+	var rem []Range
 	// the part of x before t
 	if x.Start < t.Start && x.Max() >= t.Start {
 		before := Range{x.Start, t.Start - x.Start}
-		rv = append(rv, before)
+		rem = append(rem, before)
 	}
 	// the part of x after t
 	if x.Start <= t.Max() && x.Max() > t.Max() {
 		after := Range{t.Max() + 1, x.Max() - t.Max()}
-		rv = append(rv, after)
+		rem = append(rem, after)
 	}
 	// the overlapping part
 	// first extract the overlapping part
-	// then apply the tranlsation as dictated by 't'
-	panic("todo")
-}
-
-func (m *Map) TranslateRange(x Range) (int, []Range) {
-	l := len(m.Ranges)
-
-	//tp := TranslateProgress{}
-	//tp.handleBefore(x, m.Ranges[0])
-	//for i, r := range m.Ranges {
-	//	tp.handleRange(x, r)
-	//	if i+1 < l {
-	//		tp.handleBetween(x, r, m.Ranges[i+1])
-	//	}
-	//}
-	//tp.handleAfter(x, m.Ranges[l-1])
-
-	//out := make([]Range, 0, 16)
-
-	// check if range goes beyond left border
-	if x.Start < m.Ranges[0].Start {
-		if !x.Overlaps(m.Ranges[0]) {
-			return
-		}
-		return x
-	}
-	//last := m.Ranges[l-1]
-	//if x > last.Max() {
-	//	return x
-	//}
-	//
-	//for _, r := range m.Ranges {
-	//	if r.Matches(x) {
-	//		return r.Translate(x)
-	//	}
-	//}
-}
-
-////////////////////////////////////////////////////////////
-
-type SortBySource []Translation
-
-var _ sort.Interface = SortBySource(nil)
-
-func (s SortBySource) Len() int           { return len(s) }
-func (s SortBySource) Less(i, j int) bool { return s[i].Start < s[j].Start }
-func (s SortBySource) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
+	start := max(x.Start, t.Start)
+	end := min(x.Max(), t.Max())
+	overlap := Range{start, end - start + 1}
+	// then apply the translation as dictated by 't'
+	overlap.Start = t.Translate(overlap.Start)
+	return overlap, rem
 }

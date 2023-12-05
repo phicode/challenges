@@ -1,2 +1,11 @@
+input: aoc23/day05/example.txt
+Lowest location: 35
+
 input: aoc23/day05/input.txt
 Lowest location: 26273516
+
+input: aoc23/day05/example.txt
+Lowest location: 46
+
+input: aoc23/day05/input.txt
+Lowest location: 34062605
