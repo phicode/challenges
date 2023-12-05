@@ -8,6 +8,8 @@ import (
 	"git.bind.ch/phil/challenges/lib"
 )
 
+// TODO: debug boilerplate, timing boilerplate
+
 func main() {
 	ProcessStep1("aoc23/dayXX/example.txt")
 	ProcessStep1("aoc23/dayXX/input.txt")

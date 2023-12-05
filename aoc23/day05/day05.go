@@ -6,18 +6,22 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"git.bind.ch/phil/challenges/lib"
 )
 
-var debug = 1
+var debug = 0
 
 func main() {
 	ProcessStep1("aoc23/day05/example.txt")
 	ProcessStep1("aoc23/day05/input.txt")
 
 	ProcessStep2("aoc23/day05/example.txt")
+	t := time.Now()
 	ProcessStep2("aoc23/day05/input.txt")
+	e := time.Now().Sub(t)
+	fmt.Println(e)
 }
 
 func ProcessStep1(name string) {
@@ -279,46 +283,28 @@ func (in *Input) TranslateRanges(t string, inputs []Range) (string, []Range) {
 }
 
 func (m *Map) TranslateRange(input Range) []Range {
-	// var xs []Range
-	//nummatches := 0
-
 	var rv []Range
 	var remainder = []Range{input}
 	for _, t := range m.Translations {
 		if !t.MatchesRange(input) {
 			continue
 		}
-		//nummatches++
 		var newremainder []Range
 		for _, x := range remainder {
 			result, rem := x.Translate(t)
 			rv = append(rv, result)
 			newremainder = append(newremainder, rem...)
+
 		}
 		remainder = newremainder
 	}
-	//if nummatches != 1 {
-	//	fmt.Println("nummatches != 1")
-	//}
 	rv = append(rv, remainder...)
-	//TestMerge(xs)
 	return rv
-}
-
-func TestMerge(xs []Range) {
-	sort.Sort(RangeBySource(xs))
-	for i := 0; i < len(xs)-1; i++ {
-		if xs[i].Max() == xs[i+1].Start-1 {
-			//fmt.Println("ranges are mergeable")
-		}
-	}
 }
 
 func (t Translation) String() string {
 	return fmt.Sprintf("%d-%d:%d", t.Start, t.Max(), t.Dst-t.Start)
 }
-
-type Ranges []Range
 
 // handle the part of Range `x` that comes before Translation `t`.
 func (x Range) Translate(t Translation) (Range, []Range) {
