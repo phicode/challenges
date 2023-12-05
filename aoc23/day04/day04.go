@@ -5,7 +5,6 @@ package main
 import (
 	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 
 	"git.bind.ch/phil/challenges/lib"
@@ -96,24 +95,10 @@ func ParseCard(l string) Card {
 	if len(numbers) != 2 {
 		panic("invalid input")
 	}
-	c.Winning = lib.Map(Split(numbers[0]), ToInt)
-	c.Numbers = lib.Map(Split(numbers[1]), ToInt)
+	c.Winning = lib.ExtractInts(numbers[0])
+	c.Numbers = lib.ExtractInts(numbers[1])
 	sort.Ints(c.Numbers)
 	return c
-}
-
-func Split(s string) []string {
-	s = strings.TrimSpace(s)
-	s = strings.ReplaceAll(s, "  ", " ")
-	return strings.Split(s, " ")
-}
-
-func ToInt(s string) int {
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		panic(err)
-	}
-	return n
 }
 
 func (c Card) String() string {
