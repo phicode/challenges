@@ -272,9 +272,6 @@ func lowest(values []Range) int {
 func (in *Input) TranslateRanges(t string, inputs []Range) (string, []Range) {
 	var rv []Range
 	m := in.FindMap(t)
-	if debug >= 2 {
-		fmt.Println(t, "- applying", len(m.Translations), "transformation")
-	}
 	for _, input := range inputs {
 		out := m.TranslateRange(input)
 		rv = append(rv, out...)
@@ -306,19 +303,10 @@ func (t Translation) String() string {
 	return fmt.Sprintf("%d-%d:%d", t.Start, t.Max(), t.Dst-t.Start)
 }
 
-// handle the part of Range `x` that comes before Translation `t`.
+// translates range 'x', returning the result of that transformation and any remaining, non-translated, ranges.
 func (x Range) Translate(t Translation) (Range, []Range) {
-	if x.Max() < t.Start {
+	if x.Max() < t.Start || x.Start > t.Max() {
 		panic("invalid state")
-		// the entire range is before the translation range
-		// nothing changes
-		//return []Range{x}
-	}
-	if x.Start > t.Max() {
-		panic("invalid state")
-		// the entire range is after the translation range
-		// nothing changes
-		//return []Range{x}
 	}
 	var rem []Range
 	// the part of x before t

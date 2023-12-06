@@ -10,3 +10,11 @@ solving time=93, distance=1192
 solving time=84, distance=1019
 solving time=66, distance=1063
 Product: 1312850
+
+input: aoc23/day06/example.txt
+solving time=71530, distance=940200
+Better: 71503
+
+input: aoc23/day06/input.txt
+solving time=48938466, distance=261119210191063
+Better: 36749103
