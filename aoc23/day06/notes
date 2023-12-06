@@ -1,0 +1,12 @@
+input: aoc23/day06/example.txt
+solving time=7, distance=9
+solving time=15, distance=40
+solving time=30, distance=200
+Product: 288
+
+input: aoc23/day06/input.txt
+solving time=48, distance=261
+solving time=93, distance=1192
+solving time=84, distance=1019
+solving time=66, distance=1063
+Product: 1312850

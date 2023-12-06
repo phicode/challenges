@@ -34,4 +34,12 @@ func ProcessStep2(name string) {
 	fmt.Println()
 }
 
+var DEBUG = 1
+
+func debug(v int, msg string) {
+	if v <= DEBUG {
+		fmt.Println(msg)
+	}
+}
+
 ////////////////////////////////////////////////////////////
