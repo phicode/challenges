@@ -17,3 +17,8 @@ func TestLcm(t *testing.T) {
 	assert.Equal(t, 15, Lcm(3, 5))
 	assert.Equal(t, 1, Lcm(1, 1))
 }
+
+func TestLcmN(t *testing.T) {
+	assert.Equal(t, 105, LcmN([]int{3, 5, 7}))
+	assert.Equal(t, 24, LcmN([]int{2, 6, 8}))
+}
