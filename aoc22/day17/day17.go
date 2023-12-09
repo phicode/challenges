@@ -16,7 +16,6 @@ const reduce = false
 const findRepetitions = true
 
 func main() {
-	fmt.Println("Example debug")
 	Process("aoc22/day17/example.txt", 11)
 	debug = 0
 	fmt.Println("Example")

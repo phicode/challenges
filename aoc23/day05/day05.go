@@ -17,9 +17,9 @@ func main() {
 	ProcessPart1("aoc23/day05/example.txt")
 	ProcessPart1("aoc23/day05/input.txt")
 
-	ProcessProcessPart2("aoc23/day05/example.txt")
+	ProcessPart2("aoc23/day05/example.txt")
 	t := time.Now()
-	ProcessProcessPart2("aoc23/day05/input.txt")
+	ProcessPart2("aoc23/day05/input.txt")
 	e := time.Now().Sub(t)
 	fmt.Println(e)
 }
@@ -34,7 +34,7 @@ func ProcessPart1(name string) {
 	fmt.Println()
 }
 
-func ProcessProcessPart2(name string) {
+func ProcessPart2(name string) {
 	fmt.Println("input:", name)
 	lines := lib.ReadLines(name)
 

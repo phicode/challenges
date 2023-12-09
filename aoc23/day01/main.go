@@ -13,9 +13,9 @@ func main() {
 	ProcessPart1("aoc23/day01/example.txt")
 	ProcessPart1("aoc23/day01/input.txt")
 
-	ProcessProcessPart2("aoc23/day01/example.txt")
-	ProcessProcessPart2("aoc23/day01/example2.txt")
-	ProcessProcessPart2("aoc23/day01/input.txt")
+	ProcessPart2("aoc23/day01/example.txt")
+	ProcessPart2("aoc23/day01/example2.txt")
+	ProcessPart2("aoc23/day01/input.txt")
 }
 
 func ProcessPart1(name string) {
@@ -31,7 +31,7 @@ func ProcessPart1(name string) {
 	fmt.Println()
 }
 
-func ProcessProcessPart2(name string) {
+func ProcessPart2(name string) {
 	fmt.Println("input:", name)
 	lines := lib.ReadLines(name)
 

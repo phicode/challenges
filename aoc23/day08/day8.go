@@ -21,8 +21,8 @@ func main() {
 	ProcessPart1("aoc23/day08/input.txt")
 
 	// Steps: 6
-	ProcessProcessPart2("aoc23/day08/ProcessPart2example.txt")
-	ProcessProcessPart2("aoc23/day08/input.txt")
+	ProcessPart2("aoc23/day08/example.txt")
+	ProcessPart2("aoc23/day08/input.txt")
 }
 
 func ProcessPart1(name string) {
@@ -35,7 +35,7 @@ func ProcessPart1(name string) {
 	fmt.Println()
 }
 
-func ProcessProcessPart2(name string) {
+func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
 	m := ParseMap(lines)

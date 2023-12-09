@@ -23,8 +23,12 @@ func main() {
 	//Process2("aoc22/day16/example.txt", 30) // 2031
 
 	fmt.Println("==== Part 2")
+	ProcessStep2V2("aoc22/day16/example.txt", 26) // 1707
+	//ProcessStep2V2("aoc22/day16/input.txt", 26)   // ??
+
+	//fmt.Println("==== Part 2")
 	Process2("aoc22/day16/example.txt", 26) // 1707
-	Process2("aoc22/day16/input.txt", 26)   // ??
+	//Process2("aoc22/day16/input.txt", 26)   // ??
 }
 
 func Process(name string) {
@@ -35,12 +39,30 @@ func Process(name string) {
 	mem := newmemory()
 	aa := valves["AA"]
 	best := aa.BestValue(mem, 30)
-
 	fmt.Println("best value:", best)
 	fmt.Println("memory size:", len(mem.best))
 
 	fmt.Println()
 }
+
+func ProcessStep2V2(name string, rem int) {
+	fmt.Println("input:", name)
+	lines := ReadInput(name)
+	valves := ParseValves(lines)
+
+	mem := newmemory()
+	aa := valves["AA"]
+	var s StateV2
+	s.A = aa
+	s.B = aa
+	s.Rem = rem
+	best := s.BestValueStep2(mem)
+	fmt.Println("best value:", best)
+	fmt.Println("memory size:", len(mem.best))
+
+	fmt.Println()
+}
+
 func Process2(name string, rounds int) {
 	fmt.Println("input:", name)
 	lines := ReadInput(name)
@@ -151,8 +173,8 @@ func (v *Valve) ValueAtTime(rem int) int {
 
 func (v *Valve) BestNeighbor(mem *memory, rem int) int {
 	var best int
-	for i, v := range v.Tunnels {
-		val := v.BestValue(mem, rem)
+	for i, t := range v.Tunnels {
+		val := t.BestValue(mem, rem)
 		if i == 0 || val > best {
 			best = val
 		}
@@ -166,12 +188,12 @@ func (v *Valve) BestValue(mem *memory, rem int) int {
 	if found {
 		return best
 	}
-	best = v._bestValue(mem, rem)
+	best = v.CalcBestValue(mem, rem)
 	mem.put(key, best)
 	return best
 }
 
-func (v *Valve) _bestValue(mem *memory, rem int) int {
+func (v *Valve) CalcBestValue(mem *memory, rem int) int {
 	if rem <= 1 {
 		return 0
 	}
@@ -182,27 +204,26 @@ func (v *Valve) _bestValue(mem *memory, rem int) int {
 	}
 
 	// combinations:
-	//   A: activate current, search neighbors
-	//   B: search neighbors, activate current
-	//   C: search neighbors if valve is already openValves
+	//   A: activate current valve, then search neighbors
+	//   B: search neighbors, activate current valve
+	//   C: search neighbors if valve is already open
 
-	if mem.openValves.IsOpen(v.Idx) { // C
+	// C
+	if mem.openValves.IsOpen(v.Idx) {
 		return v.BestNeighbor(mem, rem-1)
 	}
 
-	if v.Flow > 0 && rem > 1 {
-		mem.openValves.SetOpen(v.Idx)
-		valueA := v.ValueAtTime(rem)
-		bestA := v.BestNeighbor(mem, rem-2)
-		totalA := valueA + bestA
-		mem.openValves.SetClosed(v.Idx)
+	// A
+	mem.openValves.SetOpen(v.Idx)
+	valueA := v.ValueAtTime(rem)
+	bestA := v.BestNeighbor(mem, rem-2)
+	totalA := valueA + bestA
+	mem.openValves.SetClosed(v.Idx)
 
-		totalB := v.BestNeighbor(mem, rem-1)
+	// B
+	totalB := v.BestNeighbor(mem, rem-1)
 
-		return max(totalA, totalB)
-	}
-
-	panic("invalid state")
+	return max(totalA, totalB)
 }
 
 func (v *Valve) Combinations(ov OpenValves, sp *ShortestPaths) []Combination {
@@ -238,8 +259,12 @@ func (v *Valve) Combinations(ov OpenValves, sp *ShortestPaths) []Combination {
 }
 
 type Key struct {
-	OV        OpenValves
+	OV OpenValves
+
+	// Valve a index: upper 8 bits
+	// Valve b index: lower 8 bits
 	Positions int16
+
 	//NameA string
 	//NameB string
 	Rem int16
@@ -271,10 +296,11 @@ func (m *memory) put(k Key, v int) {
 
 type OpenValves uint64
 
-func (o *OpenValves) SetOpen(i int)      { *o |= 1 << i }
-func (o *OpenValves) IsOpen(i int) bool  { return *o&(1<<i) != 0 }
-func (o *OpenValves) SetClosed(i int)    { *o = *o & ^(1 << i) }
-func (o *OpenValves) Invert() OpenValves { return ^(*o) }
+func (o *OpenValves) SetOpen(i int)       { *o |= 1 << i }
+func (o *OpenValves) IsOpen(i int) bool   { return *o&(1<<i) != 0 }
+func (o *OpenValves) IsClosed(i int) bool { return *o&(1<<i) == 0 }
+func (o *OpenValves) SetClosed(i int)     { *o = *o & ^(1 << i) }
+func (o *OpenValves) Invert() OpenValves  { return ^(*o) }
 
 func (o *OpenValves) CountClosed(allOpen OpenValves) int {
 	todo := *o ^ allOpen
@@ -344,7 +370,7 @@ func (s *State) run(i int) int {
 	if MEMOIZATION {
 		key := NewKey(r.valveA, r.valveB, r.Rem, r.OV)
 		// memoization
-		if v, ok := s.mem.best[key]; ok {
+		if v, ok := s.mem.get(key); ok {
 			return v
 		}
 	}
@@ -383,7 +409,7 @@ func (s *State) run(i int) int {
 	if MEMOIZATION {
 		key := NewKey(r.valveA, r.valveB, r.Rem, r.OV)
 		//if best > 0 {
-		s.mem.best[key] = best
+		s.mem.put(key, best)
 		//}
 		if l := len(s.mem.best); l > 0 && l%1_000_000 == 0 {
 			fmt.Println("memo size:", len(s.mem.best))
@@ -542,8 +568,11 @@ func NextSteps(pos *Valve, sp *ShortestPaths, ov OpenValves) []Step {
 }
 
 type Step struct {
+	// where we want to go to
 	Target *Valve
-	Next   *Valve
+
+	// the next valve to navigate in order to reach Target in the least steps possible
+	Next *Valve
 }
 
 type ShortestPaths struct {
@@ -596,4 +625,64 @@ func ShortestPathTo(sp *ShortestPaths, from *Valve, to *Valve) *Valve {
 		panic("invalid state")
 	}
 	return next
+}
+
+////////////////////////////////////////////////////////////
+// V2
+
+func (s *StateV2) BestValueStep2(mem *memory) int {
+	if s.Rem <= 1 {
+		return 0
+	}
+	key := NewKey(s.A, s.B, s.Rem, s.OV)
+	//key := Key{Rem: int16(s.Rem), OV: s.OV}
+	if v, ok := mem.get(key); ok {
+		return v
+	}
+	var best int
+	for i := 0; i <= len(s.A.Tunnels); i++ {
+		for j := 0; j <= len(s.B.Tunnels); j++ {
+			var next StateV2
+			ov := s.OV
+			var flow int // flow added by this step
+			if i < len(s.A.Tunnels) {
+				// move to another node
+				next.A = s.A.Tunnels[i]
+			} else {
+				// stay at current node and open vale (if possible)
+				next.A = s.A
+				flow += ov.Open(s.A, s.Rem)
+			}
+			if j < len(s.B.Tunnels) {
+				// move to another node
+				next.B = s.B.Tunnels[j]
+			} else {
+				// stay at current node and open vale (if possible)
+				next.B = s.B
+				flow += ov.Open(s.B, s.Rem)
+			}
+			next.OV = ov
+			next.Rem = s.Rem - 1
+
+			result := flow + next.BestValueStep2(mem)
+			best = max(best, result)
+		}
+	}
+	mem.put(key, best)
+	return best
+}
+
+type StateV2 struct {
+	A   *Valve
+	B   *Valve
+	Rem int
+	OV  OpenValves
+}
+
+func (ov *OpenValves) Open(v *Valve, rem int) int {
+	if !ov.IsOpen(v.Idx) {
+		ov.SetOpen(v.Idx)
+		return v.ValueAtTime(rem)
+	}
+	return 0
 }

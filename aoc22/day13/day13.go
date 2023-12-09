@@ -14,8 +14,8 @@ import (
 func main() {
 	ProcessPart1("aoc22/day13/example.txt")
 	ProcessPart1("aoc22/day13/input.txt")
-	ProcessProcessPart2("aoc22/day13/example.txt")
-	ProcessProcessPart2("aoc22/day13/input.txt")
+	ProcessPart2("aoc22/day13/example.txt")
+	ProcessPart2("aoc22/day13/input.txt")
 }
 
 func ProcessPart1(name string) {
@@ -36,7 +36,7 @@ func ProcessPart1(name string) {
 	fmt.Println()
 }
 
-func ProcessProcessPart2(name string) {
+func ProcessPart2(name string) {
 	fmt.Println("input:", name)
 	lines := ReadInput(name)
 	lines = append(lines, "[[2]]", "[[6]]")
