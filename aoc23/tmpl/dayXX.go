@@ -9,7 +9,7 @@ import (
 )
 
 // TODO: timing boilerplate
-var DEBUG = 1
+var VERBOSE = 1
 
 func main() {
 	ProcessStep1("aoc23/dayXX/example.txt")
@@ -35,8 +35,8 @@ func ProcessStep2(name string) {
 	fmt.Println()
 }
 
-func debug(v int, msg string) {
-	if v <= DEBUG {
+func log(v int, msg string) {
+	if v <= VERBOSE {
 		fmt.Println(msg)
 	}
 }

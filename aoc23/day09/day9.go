@@ -8,8 +8,7 @@ import (
 	"git.bind.ch/phil/challenges/lib"
 )
 
-// TODO: timing boilerplate
-var DEBUG = 1
+var VERBOSE = 0
 
 func main() {
 	// 18 + 28 + 68 = 114
@@ -28,7 +27,9 @@ func ProcessStep1(name string) {
 	var sum int
 	for i, input := range inputs {
 		next := FindNextNumber(input)
-		fmt.Println("line", i+1, "next number:", next)
+		if VERBOSE >= 1 {
+			fmt.Println("line", i+1, "next number:", next)
+		}
 		sum += next
 	}
 	fmt.Println("Sum:", sum)
@@ -42,7 +43,9 @@ func ProcessStep2(name string) {
 	var sum int
 	for i, input := range inputs {
 		next := FindPreviousNumber(input)
-		fmt.Println("line", i+1, "previous number:", next)
+		if VERBOSE >= 1 {
+			fmt.Println("line", i+1, "previous number:", next)
+		}
 		sum += next
 	}
 	fmt.Println("Sum:", sum)
@@ -51,7 +54,7 @@ func ProcessStep2(name string) {
 }
 
 func debug(v int, msg string) {
-	if v <= DEBUG {
+	if v <= VERBOSE {
 		fmt.Println(msg)
 	}
 }

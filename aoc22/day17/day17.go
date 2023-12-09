@@ -36,7 +36,7 @@ func Process(name string, rocksToPlace int) {
 	c := Run(lines, rocksToPlace)
 	fmt.Println("height:", c.Height())
 	fmt.Println("removed:", c.Removed)
-	fmt.Println("total:", c.Height()+c.Removed)
+	fmt.Println("total:", c.Height()+c.Removed+c.HeightSkipped)
 
 	fmt.Println()
 }
@@ -108,12 +108,14 @@ func ReadInput(name string) []string {
 
 type Cave struct {
 	Lines         []Line
+	RocksAt       []int // rock index was placed at this line index
 	NextRockIndex int
 	ActiveRock    Rock
 	RockOffset    int // how far of the floor the rock is
 	RocksToPlace  int
 	RocksPlaced   int
 	Removed       int
+	HeightSkipped int
 }
 
 func (c *Cave) Render(w *bytes.Buffer) {
@@ -284,7 +286,8 @@ func Run(lines []string, rocksToPlace int) *Cave {
 	}
 
 	for i := 0; !c.Finished(); i++ {
-		move := input[i%len(input)]
+		moveIdx := i % len(input)
+		move := input[moveIdx]
 		if len(c.ActiveRock) == 0 {
 			c.Fill()
 			c.SpawnRock()
@@ -300,16 +303,16 @@ func Run(lines []string, rocksToPlace int) *Cave {
 		c.Print("after gravity", 2)
 
 		// space saving stuff
-		if reduce {
-			if i > 0 && i%100_000 == 0 {
-				c.Reduce()
-				if i%1_000_000 == 0 {
-					fmt.Printf("i=%d rocks-placed: %d\n", i, c.RocksPlaced)
-				}
-			}
-		}
+		//if reduce {
+		//	if i > 0 && i%100_000 == 0 {
+		//		c.Reduce()
+		//		if i%1_000_000 == 0 {
+		//			fmt.Printf("i=%d rocks-placed: %d\n", i, c.RocksPlaced)
+		//		}
+		//	}
+		//}
 		if findRepetitions {
-			if i > 0 && i%100_000 == 0 {
+			if c.RocksPlaced == 10_000 {
 				c.FindRepetitions()
 			}
 		}
@@ -391,16 +394,15 @@ func (c *Cave) FixRock() {
 			c.Grow()
 		}
 		c.Lines[idx] = c.Lines[idx].Merge(c.ActiveRock[i])
+		c.RocksAt[idx] = c.NextRockIndex - 1
 	}
 	c.ActiveRock = nil
 	c.RocksPlaced++
-	if c.RocksPlaced > 2000 {
-		c.FindRepetitions()
-	}
 }
 
 func (c *Cave) Grow() {
 	c.Lines = append(c.Lines, Line(0))
+	c.RocksAt = append(c.RocksAt, 0)
 }
 
 func (c *Cave) Finished() bool {
@@ -450,20 +452,48 @@ func (c *Cave) FindFull() int {
 }
 
 func (c *Cave) FindRepetitions() {
-	// find two complete repetitions
-	maxlen := c.Height() / 2
-	for maxlen > 1 {
-		if !c.CheckRepetition(maxlen) {
-			fmt.Println("repetition found after:", maxlen)
-			os.Exit(0)
+	fmt.Println("LOOP FINDER")
+	var fullIndxs []int
+	for i, v := range c.Lines {
+		if v.IsFull() {
+			fullIndxs = append(fullIndxs, i)
 		}
-		maxlen--
+	}
+	for i, idx := range fullIndxs {
+		// find 2 loops
+		for j := i + 1; j < len(fullIndxs); j++ {
+			start := idx
+			end := fullIndxs[j]
+
+			start2 := end
+			end2 := end + (end - start)
+			if c.IsLoop(start, end) && c.IsLoop(start2, end2) {
+				rocksDiff1 := c.RocksAt[end] - c.RocksAt[start]
+				rocksDiff2 := c.RocksAt[end2] - c.RocksAt[start2]
+				//fmt.Printf("loop found, start=%d, end=%d, length=%d\n", start, end, end-start)
+				fmt.Printf("loop found, start=%d, end=%d, length=%d, d1=%d, d2=%d\n", start, end, end-start, rocksDiff1, rocksDiff2)
+				n := end - start
+				rocksRemaining := c.RocksToPlace - c.RocksPlaced
+				skips := rocksRemaining / rocksDiff1
+				plusRocks := skips * rocksDiff1
+				plusHeight := skips * n
+				fmt.Printf("can skip %d loops for %d heigh, %d rocks\n", skips, plusHeight, plusRocks)
+				c.RocksPlaced += plusRocks
+				c.HeightSkipped += plusHeight
+				return
+			}
+		}
 	}
 }
 
-func (c *Cave) CheckRepetition(maxlen int) bool {
-	for i := 0; i < maxlen; i++ {
-		if c.Lines[i] != c.Lines[maxlen+i] {
+// start inclusive, end exclusive
+func (c *Cave) IsLoop(start, end int) bool {
+	l := end - start
+	if end+l >= len(c.Lines) {
+		return false
+	}
+	for i := 0; i < l; i++ {
+		if c.Lines[start+i] != c.Lines[end+i] {
 			return false
 		}
 	}
