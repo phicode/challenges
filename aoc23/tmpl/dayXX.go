@@ -12,23 +12,23 @@ import (
 var VERBOSE = 1
 
 func main() {
-	ProcessStep1("aoc23/dayXX/example.txt")
-	ProcessStep1("aoc23/dayXX/input.txt")
+	ProcessPart1("aoc23/dayXX/example.txt")
+	ProcessPart1("aoc23/dayXX/input.txt")
 
-	ProcessStep2("aoc23/dayXX/example.txt")
-	ProcessStep2("aoc23/dayXX/input.txt")
+	ProcessProcessPart2("aoc23/dayXX/example.txt")
+	ProcessProcessPart2("aoc23/dayXX/input.txt")
 }
 
-func ProcessStep1(name string) {
-	fmt.Println("Step 1 input:", name)
+func ProcessPart1(name string) {
+	fmt.Println("Part 1 input:", name)
 	lines := lib.ReadLines(name)
 	_ = lines
 
 	fmt.Println()
 }
 
-func ProcessStep2(name string) {
-	fmt.Println("Step 2 input:", name)
+func ProcessProcessPart2(name string) {
+	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
 	_ = lines
 

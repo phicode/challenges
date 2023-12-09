@@ -16,13 +16,13 @@ import (
 const MEMOIZATION = true
 
 func main() {
-	fmt.Println("==== STEP 1")
+	fmt.Println("==== Part 1")
 	Process("aoc22/day16/example.txt") // 1651
 	Process("aoc22/day16/input.txt")   // 1724
 
 	//Process2("aoc22/day16/example.txt", 30) // 2031
 
-	fmt.Println("==== STEP 2")
+	fmt.Println("==== Part 2")
 	Process2("aoc22/day16/example.txt", 26) // 1707
 	Process2("aoc22/day16/input.txt", 26)   // ??
 }

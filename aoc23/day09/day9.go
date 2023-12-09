@@ -12,16 +12,16 @@ var VERBOSE = 0
 
 func main() {
 	// 18 + 28 + 68 = 114
-	ProcessStep1("aoc23/day09/example.txt")
-	ProcessStep1("aoc23/day09/input.txt")
+	ProcessPart1("aoc23/day09/example.txt")
+	ProcessPart1("aoc23/day09/input.txt")
 
 	// -3 + 0 + 5 = 2
-	ProcessStep2("aoc23/day09/example.txt")
-	ProcessStep2("aoc23/day09/input.txt")
+	ProcessProcessPart2("aoc23/day09/example.txt")
+	ProcessProcessPart2("aoc23/day09/input.txt")
 }
 
-func ProcessStep1(name string) {
-	fmt.Println("Step 1 input:", name)
+func ProcessPart1(name string) {
+	fmt.Println("Part 1 input:", name)
 	lines := lib.ReadLines(name)
 	inputs := ParseLines(lines)
 	var sum int
@@ -36,8 +36,8 @@ func ProcessStep1(name string) {
 	fmt.Println()
 }
 
-func ProcessStep2(name string) {
-	fmt.Println("Step 2 input:", name)
+func ProcessProcessPart2(name string) {
+	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
 	inputs := ParseLines(lines)
 	var sum int

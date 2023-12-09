@@ -13,16 +13,16 @@ import (
 var DEBUG = 0
 
 func main() {
-	ProcessStep1("aoc23/day07/example.txt")
-	ProcessStep1("aoc23/day07/input.txt")
+	ProcessPart1("aoc23/day07/example.txt")
+	ProcessPart1("aoc23/day07/input.txt")
 
 	//DEBUG = 1
-	ProcessStep2("aoc23/day07/example.txt")
-	ProcessStep2("aoc23/day07/input.txt")
+	ProcessProcessPart2("aoc23/day07/example.txt")
+	ProcessProcessPart2("aoc23/day07/input.txt")
 }
 
-func ProcessStep1(name string) {
-	fmt.Println("Step 1 input:", name)
+func ProcessPart1(name string) {
+	fmt.Println("Part 1 input:", name)
 	lines := lib.ReadLines(name)
 
 	hands := ParseHands(lines)
@@ -38,8 +38,8 @@ func ProcessStep1(name string) {
 	fmt.Println()
 }
 
-func ProcessStep2(name string) {
-	fmt.Println("Step 2 input:", name)
+func ProcessProcessPart2(name string) {
+	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
 
 	hands := ParseHands(lines)

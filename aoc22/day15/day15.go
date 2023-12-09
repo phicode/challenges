@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	ProcessStep1("aoc22/day15/example.txt", 10)
-	ProcessStep1("aoc22/day15/input.txt", 2000000)
-	ProcessStep2("aoc22/day15/example.txt", 20)
-	ProcessStep2("aoc22/day15/input.txt", 4000000)
+	ProcessPart1("aoc22/day15/example.txt", 10)
+	ProcessPart1("aoc22/day15/input.txt", 2000000)
+	ProcessProcessPart2("aoc22/day15/example.txt", 20)
+	ProcessProcessPart2("aoc22/day15/input.txt", 4000000)
 }
 
-func ProcessStep1(name string, row int) {
+func ProcessPart1(name string, row int) {
 	fmt.Println("input:", name)
 	lines := ReadInput(name)
 	sensors := ParseLines(lines)
@@ -26,7 +26,7 @@ func ProcessStep1(name string, row int) {
 
 	fmt.Println()
 }
-func ProcessStep2(name string, size int) {
+func ProcessProcessPart2(name string, size int) {
 	fmt.Println("input:", name)
 	lines := ReadInput(name)
 	sensors := ParseLines(lines)

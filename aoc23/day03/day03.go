@@ -9,14 +9,14 @@ import (
 )
 
 func main() {
-	ProcessStep1("aoc23/day03/example.txt")
-	ProcessStep1("aoc23/day03/input.txt")
+	ProcessPart1("aoc23/day03/example.txt")
+	ProcessPart1("aoc23/day03/input.txt")
 
-	ProcessStep2("aoc23/day03/example.txt")
-	ProcessStep2("aoc23/day03/input.txt")
+	ProcessProcessPart2("aoc23/day03/example.txt")
+	ProcessProcessPart2("aoc23/day03/input.txt")
 }
 
-func ProcessStep1(name string) {
+func ProcessPart1(name string) {
 	fmt.Println("input:", name)
 	lines := lib.ReadLines(name)
 	grid := Grid(lines)
@@ -28,13 +28,13 @@ func ProcessStep1(name string) {
 	fmt.Println()
 }
 
-func ProcessStep2(name string) {
+func ProcessProcessPart2(name string) {
 	fmt.Println("input:", name)
 	lines := lib.ReadLines(name)
 	_ = lines
 
 	grid := Grid(lines)
-	s := NewSolverStep2(grid)
+	s := NewSolverProcessPart2(grid)
 	grid.VisitSymbols(s.SymbolVisitor)
 	fmt.Println("sum:", s.sum)
 
@@ -167,18 +167,18 @@ func (s *Solver) NumberSum() int {
 
 ////////////////////////////////////////////////////////////
 
-type SolverStep2 struct {
+type SolverProcessPart2 struct {
 	grid Grid
 	sum  int
 }
 
-func NewSolverStep2(g Grid) *SolverStep2 {
-	return &SolverStep2{
+func NewSolverProcessPart2(g Grid) *SolverProcessPart2 {
+	return &SolverProcessPart2{
 		grid: g,
 	}
 }
 
-func (s *SolverStep2) SymbolVisitor(g Grid, x, y int) {
+func (s *SolverProcessPart2) SymbolVisitor(g Grid, x, y int) {
 	// only consider gears
 	if g.Get(x, y) != '*' {
 		return
@@ -209,7 +209,7 @@ func (s *SolverStep2) SymbolVisitor(g Grid, x, y int) {
 	}
 }
 
-func (s *SolverStep2) Test(acc map[Pos]int, x, y int) {
+func (s *SolverProcessPart2) Test(acc map[Pos]int, x, y int) {
 	w, h := s.grid.Size()
 	if x < 0 || x >= w || y < 0 || y >= h {
 		return

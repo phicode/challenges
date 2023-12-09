@@ -14,17 +14,17 @@ import (
 var debug = 0
 
 func main() {
-	ProcessStep1("aoc23/day05/example.txt")
-	ProcessStep1("aoc23/day05/input.txt")
+	ProcessPart1("aoc23/day05/example.txt")
+	ProcessPart1("aoc23/day05/input.txt")
 
-	ProcessStep2("aoc23/day05/example.txt")
+	ProcessProcessPart2("aoc23/day05/example.txt")
 	t := time.Now()
-	ProcessStep2("aoc23/day05/input.txt")
+	ProcessProcessPart2("aoc23/day05/input.txt")
 	e := time.Now().Sub(t)
 	fmt.Println(e)
 }
 
-func ProcessStep1(name string) {
+func ProcessPart1(name string) {
 	fmt.Println("input:", name)
 	lines := lib.ReadLines(name)
 
@@ -34,12 +34,12 @@ func ProcessStep1(name string) {
 	fmt.Println()
 }
 
-func ProcessStep2(name string) {
+func ProcessProcessPart2(name string) {
 	fmt.Println("input:", name)
 	lines := lib.ReadLines(name)
 
 	input := ParseInput(lines)
-	input.RunStep2()
+	input.RunProcessPart2()
 
 	fmt.Println()
 }
@@ -227,11 +227,11 @@ func (s RangeBySource) Swap(i, j int) {
 ////////////////////////////////////////////////////////////
 // PART2
 
-func (in *Input) RunStep2() {
+func (in *Input) RunProcessPart2() {
 	var low int
 	n := len(in.Seeds)
 	for i := 0; i < n-1; i += 2 {
-		v := in.TranslateSeedStep2(in.Seeds[i], in.Seeds[i+1])
+		v := in.TranslateSeedProcessPart2(in.Seeds[i], in.Seeds[i+1])
 		if i == 0 {
 			low = lowest(v)
 		} else {
@@ -249,7 +249,7 @@ func (in *Input) RunStep2() {
 	fmt.Println("Lowest location:", low)
 }
 
-func (in *Input) TranslateSeedStep2(start, num int) []Range {
+func (in *Input) TranslateSeedProcessPart2(start, num int) []Range {
 	t := "seed"
 	values := []Range{{start, num}}
 	for t != "location" {

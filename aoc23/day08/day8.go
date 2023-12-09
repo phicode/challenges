@@ -14,19 +14,19 @@ var DEBUG = 1
 
 func main() {
 	// Steps: 2
-	ProcessStep1("aoc23/day08/example.txt")
+	ProcessPart1("aoc23/day08/example.txt")
 	// Steps: 6
-	ProcessStep1("aoc23/day08/example2.txt")
+	ProcessPart1("aoc23/day08/example2.txt")
 
-	ProcessStep1("aoc23/day08/input.txt")
+	ProcessPart1("aoc23/day08/input.txt")
 
 	// Steps: 6
-	ProcessStep2("aoc23/day08/step2example.txt")
-	ProcessStep2("aoc23/day08/input.txt")
+	ProcessProcessPart2("aoc23/day08/ProcessPart2example.txt")
+	ProcessProcessPart2("aoc23/day08/input.txt")
 }
 
-func ProcessStep1(name string) {
-	fmt.Println("Step 1 input:", name)
+func ProcessPart1(name string) {
+	fmt.Println("Part 1 input:", name)
 	lines := lib.ReadLines(name)
 	m := ParseMap(lines)
 	steps := m.Traverse()
@@ -35,8 +35,8 @@ func ProcessStep1(name string) {
 	fmt.Println()
 }
 
-func ProcessStep2(name string) {
-	fmt.Println("Step 2 input:", name)
+func ProcessProcessPart2(name string) {
+	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
 	m := ParseMap(lines)
 	steps := m.TraverseGhost()

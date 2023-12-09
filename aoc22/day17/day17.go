@@ -22,10 +22,10 @@ func main() {
 	fmt.Println("Example")
 	Process("aoc22/day17/example.txt", 2022)
 
-	fmt.Println("Step 1")
+	fmt.Println("Part 1")
 	Process("aoc22/day17/input.txt", 2022)
 
-	fmt.Println("Step 2")
+	fmt.Println("Part 2")
 	Process("aoc22/day17/input.txt", 1000000000000)
 }
 
@@ -36,6 +36,7 @@ func Process(name string, rocksToPlace int) {
 	c := Run(lines, rocksToPlace)
 	fmt.Println("height:", c.Height())
 	fmt.Println("removed:", c.Removed)
+	fmt.Println("skipped:", c.HeightSkipped)
 	fmt.Println("total:", c.Height()+c.Removed+c.HeightSkipped)
 
 	fmt.Println()
