@@ -26,7 +26,7 @@ func main() {
 	ProcessPart2("aoc23/day10/example3part2.txt")
 	// Enclosed: 10
 	ProcessPart2("aoc23/day10/example4part2.txt")
-	//ProcessPart2("aoc23/day10/input.txt")
+	ProcessPart2("aoc23/day10/input.txt")
 }
 
 func ProcessPart1(name string) {
@@ -153,9 +153,11 @@ type Pos struct {
 	X, Y int
 }
 
-func (p Pos) Add(b Pos) Pos { return Pos{p.X + b.X, p.Y + b.Y} }
-func (p Pos) Sub(b Pos) Pos { return Pos{p.X - b.X, p.Y - b.Y} }
-func (p Pos) Reverse() Pos  { return Pos{-p.X, -p.Y} }
+func (p Pos) Add(b Pos) Pos    { return Pos{p.X + b.X, p.Y + b.Y} }
+func (p Pos) Sub(b Pos) Pos    { return Pos{p.X - b.X, p.Y - b.Y} }
+func (p Pos) Reverse() Pos     { return Pos{-p.X, -p.Y} }
+func (p Pos) NormalRight() Pos { return Pos{p.Y, -p.X} }
+func (p Pos) NormalLeft() Pos  { return Pos{-p.Y, p.X} }
 
 var (
 	DirectionNorth = Pos{0, -1}
@@ -172,6 +174,7 @@ var Directions = []Pos{
 }
 
 type Grid struct {
+	Start Pos
 	tiles [][]Tile
 }
 
@@ -195,6 +198,20 @@ func (g *Grid) FindStart() Pos {
 	panic("start position not found")
 }
 
+func (g *Grid) FindStartParameters(start Pos) (Tile, []Pos) {
+	var connections []Pos
+	for _, dir := range Directions {
+		to := start.Add(dir)
+		if g.CanMove(to, dir.Reverse()) {
+			connections = append(connections, to)
+		}
+	}
+	if len(connections) != 2 || connections[0] == connections[1] {
+		panic("invalid state")
+	}
+	return TranslateTile(start, connections[0], connections[1]), connections
+}
+
 func (g *Grid) Rows() int    { return len(g.tiles) }
 func (g *Grid) Columns() int { return len(g.tiles[0]) }
 func (g *Grid) IsValid(p Pos) bool {
@@ -211,8 +228,10 @@ func (g *Grid) CanMove(p, direction Pos) bool {
 
 func (g *Grid) CopyDimensions() *Grid {
 	w, h := g.Columns(), g.Rows()
-	clone := Grid{}
-	clone.tiles = make([][]Tile, h)
+	clone := Grid{
+		Start: g.Start,
+		tiles: make([][]Tile, h),
+	}
 	for y := 0; y < h; y++ {
 		clone.tiles[y] = make([]Tile, w)
 		for x := 0; x < w; x++ {
@@ -234,27 +253,35 @@ func (g *Grid) Print() {
 	}
 }
 
+func (g *Grid) CountMarked() (int, int) {
+	w, h := g.Columns(), g.Rows()
+	var ground, marked int
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			v := g.tiles[y][x]
+			if v == '.' {
+				ground++
+			}
+			if v == 'O' {
+				marked++
+			}
+		}
+	}
+	return ground, marked
+}
+
 ////////////////////////////////////////////////////////////
 // Part 1
 
 func SolvePart1(g *Grid) (int, *Grid) {
+	g.Start = g.FindStart()
 	cleaned := g.CopyDimensions()
-	start := g.FindStart()
-	var connections []Pos
-	for _, dir := range Directions {
-		to := start.Add(dir)
-		if g.CanMove(to, dir.Reverse()) {
-			connections = append(connections, to)
-		}
-	}
-	if len(connections) != 2 || connections[0] == connections[1] {
-		panic("invalid state")
-	}
-	cleaned.Set(start, TranslateTile(start, connections[0], connections[1]))
+	startTile, connections := g.FindStartParameters(g.Start)
+	cleaned.Set(g.Start, startTile)
 	cleaned.Set(connections[0], g.Get(connections[0]))
 	cleaned.Set(connections[1], g.Get(connections[1]))
 	distance := 1
-	previous := []Pos{start, start}
+	previous := []Pos{g.Start, g.Start}
 	for connections[0] != connections[1] {
 		previous, connections = Advance(g, previous, connections)
 		cleaned.Set(connections[0], g.Get(connections[0]))
@@ -294,34 +321,49 @@ func TranslateTile(a, b, c Pos) Tile {
 ////////////////////////////////////////////////////////////
 // Part 2
 
-func SolvePart2(cleaned *Grid) int {
-	w, h := cleaned.Columns(), cleaned.Rows()
-	var enclosed int
-	for x := 0; x < w; x++ {
-		for y := 0; y < h; y++ {
-			p := Pos{x, y}
-			t := cleaned.Get(p)
-			if t == Ground {
-				intr := Intersections(cleaned, Pos{0, y}, p)
-				if intr%2 == 1 {
-					if VERBOSE >= 2 {
-						fmt.Println("found enclosed:", p)
-					}
-					enclosed++
-				}
-			}
-		}
+func SolvePart2(g *Grid) int {
+	//markoutside(g, Pos{0, 0})
+
+	_, connections := g.FindStartParameters(g.Start)
+	previous := g.Start
+	current := connections[0]
+	for current != g.Start {
+		a, b := OutsidePositions(previous, current)
+		markoutside(g, a)
+		markoutside(g, b)
+		next := AdvanceOne(g, previous, current)
+		previous, current = current, next
 	}
-	return enclosed
+
+	a, b := g.CountMarked()
+	return min(a, b)
 }
 
-func Intersections(g *Grid, start Pos, end Pos) int {
-	intr := 0
-	for start != end {
-		if g.Get(start) != Ground {
-			intr++
-		}
-		start = start.Add(DirectionEast)
-	}
-	return intr
+func OutsidePositions(from Pos, to Pos) (Pos, Pos) {
+	normal := to.Sub(from).NormalLeft()
+	return from.Add(normal), to.Add(normal)
 }
+
+func markoutside(g *Grid, pos Pos) {
+	if g.Get(pos) != '.' {
+		return
+	}
+	g.Set(pos, 'O')
+	for _, dir := range Directions {
+		to := pos.Add(dir)
+		if g.IsValid(to) && g.Get(to) == '.' {
+			markoutside(g, to)
+		}
+	}
+}
+
+//func Intersections(g *Grid, start Pos, end Pos) int {
+//	intr := 0
+//	for start != end {
+//		if g.Get(start) != Ground {
+//			intr++
+//		}
+//		start = start.Add(DirectionEast)
+//	}
+//	return intr
+//}
