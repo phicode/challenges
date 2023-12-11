@@ -1,0 +1,38 @@
+Galaxy 9: (5,0)
+Galaxy 5: (1,5)
+
+Manhattan Distance = |5-1| + |0-5|
+                   = 4     + 5
+                   = 9
+
+------------------------------------------------------------
+
+....1........
+.........2...
+3............
+.............
+.............
+........4....
+.5...........
+............6
+.............
+.............
+.........7...
+8....9.......
+
+------------------------------------------------------------
+
+galaxies: 9
+sum of distance: 374
+
+Part 1 input: aoc23/day11/input.txt
+galaxies: 425
+sum of distance: 9370588
+
+Part 2 input: aoc23/day11/example.txt
+galaxies: 9
+sum of distance: 1030
+
+Part 2 input: aoc23/day11/input.txt
+galaxies: 425
+sum of distance: 746207878188
