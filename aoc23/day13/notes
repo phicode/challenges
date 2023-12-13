@@ -8,3 +8,5 @@ part2
 =====
 22067 too low
 
+toggling row 11 (index 10) and col 7 (index 6) should find the mirror at line 8 (index 7)
+
