@@ -26,9 +26,9 @@ func ProcessPart1(name string) {
 	grids := ParseGrids(lines)
 	var sum int
 	for i, g := range grids {
-		mirrorRow := g.FindMirror()
+		mirrorRow := g.FindMirror(-1)
 		t := g.Transpose()
-		mirrorCol := t.FindMirror()
+		mirrorCol := t.FindMirror(-1)
 		if VERBOSE >= 2 {
 			fmt.Println("grid", i, "mirror line:", mirrorRow)
 			fmt.Println("grid", i, "mirror line t:", mirrorCol)
@@ -66,17 +66,18 @@ func ProcessPart2(name string) {
 
 		if (mirrorRow < 0 && mirrorCol < 0) || (mirrorRow >= 0 && mirrorCol >= 0) {
 			fmt.Println("Grid nr:", i)
+			fmt.Println("Rows")
 			g.Print()
+			fmt.Println("row line:", g.FindMirror(-1))
 			fmt.Println()
-			fmt.Println("Transposed")
+			fmt.Println("Columns")
 			t.Print()
+			fmt.Println("column line:", t.FindMirror(-1))
 			//gridm, gridmlen := g.FindMirror()
 			//tmir, tmirlen := t.FindMirror()
 			//fmt.Println("grid mirror line:", gridm, gridmlen)
 			//fmt.Println("transposed mirror line:", tmir, tmirlen)
 
-			fmt.Println("grid mirror line:", g.FindMirror())
-			fmt.Println("transposed mirror line:", t.FindMirror())
 			fmt.Println("found mirror lines:", mirrorRow, mirrorCol)
 			panic(fmt.Errorf("invalid input with grid: %d", i+1))
 		}
@@ -134,10 +135,13 @@ func (g Grid) Transpose() Grid {
 func (g Grid) Rows() int { return len(g) }
 func (g Grid) Cols() int { return len(g[0]) }
 
-func (g Grid) FindMirror() int {
-	// tests if i and i+1 mirror
+func (g Grid) FindMirror(exclude int) int {
+	// tests if i and i+1 are mirrors
 	found, l := -1, 0
 	for i := 0; i < g.Rows()-1; i++ {
+		if i == exclude-1 {
+			continue
+		}
 		ok, newLen := g.IsMirrorLine(i)
 		if ok {
 			if newLen > l {
@@ -212,16 +216,15 @@ func FindMirrorPart2v2(g Grid) int {
 	// every combination of toggled grid
 	cols := g.Cols()
 	rows := g.Rows()
-	p1row := g.FindMirror()
+	p1row := g.FindMirror(-1)
 	for x := 0; x < cols; x++ {
 		for y := 0; y < rows; y++ {
 			g.Toggle(x, y)
-			if mirror := g.FindMirror(); mirror != -1 {
-				if p1row != mirror {
-					return mirror
-				}
-			}
+			mirror := g.FindMirror(p1row)
 			g.Toggle(x, y)
+			if mirror != -1 {
+				return mirror
+			}
 		}
 	}
 	return -1
