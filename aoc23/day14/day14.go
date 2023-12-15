@@ -3,6 +3,7 @@ package main
 // https://adventofcode.com/2023/day/XX
 
 import (
+	"crypto/sha1"
 	"fmt"
 	"time"
 
@@ -16,7 +17,10 @@ func main() {
 	ProcessPart1("aoc23/day14/input.txt")
 
 	ProcessPart2("aoc23/day14/example.txt", 3)
+
 	VERBOSE = 0
+	ProcessPart2("aoc23/day14/example.txt", 1_000_000_000)
+
 	ProcessPart2("aoc23/day14/input.txt", 1_000_000_000)
 }
 
@@ -40,18 +44,31 @@ func ProcessPart2(name string, cycles int) {
 	g := ParseInput(lines)
 	t := time.Now()
 	var loads []int
-	for c := 0; c < cycles; c++ {
+	var keys []Key
+	rem := cycles
+	c := 0
+	for rem > 0 {
 		g.SpinCycle()
+		rem--
+		c++
 		loads = append(loads, g.CalcLoad())
-		if len(loads) > 100_0000 && FindLoop(loads) {
-			fmt.Println("loop found")
+		keys = append(keys, g.Key())
+		if len(loads) > 10_000 {
+			start, l := lib.FindLoop(loads)
+			start2, l2 := lib.FindLoop(keys)
+			if start != -1 || start2 != -1 {
+				fmt.Println()
+				fmt.Println("loop found, start:", start, "length:", l)
+				fmt.Println("loop found, start:", start2, "length:", l2)
+				rem = Skip(rem, start2, l2)
+			}
 		}
 		if VERBOSE >= 1 {
-			fmt.Println("After", c+1, "cycles:")
+			fmt.Println("After", c, "cycles:")
 			g.Print()
 			fmt.Println()
 		}
-		if c%100_000 == 0 {
+		if c%10_000 == 0 {
 			percent := 100.0 * float64(c) / float64(cycles)
 			fmt.Printf("\r%2f %%, %v", percent, time.Now().Sub(t))
 		}
@@ -63,9 +80,11 @@ func ProcessPart2(name string, cycles int) {
 	fmt.Println()
 }
 
-func FindLoop(loads []int) bool {
-	maxlen:=
-
+func Skip(rem int, start int, loopLen int) int {
+	canSkipLoops := rem / loopLen
+	canSkipAmount := loopLen * canSkipLoops
+	fmt.Println("remaining:", rem, " - skipping", canSkipLoops, "loops for", canSkipAmount)
+	return rem - canSkipAmount
 }
 
 func log(v int, msg string) {
@@ -217,17 +236,24 @@ func (g *Grid) SpinCycle() {
 	g.MoveRight()
 }
 
+type Key struct {
+	Load int
+	Hash [20]byte
+}
 
-// start inclusive, end exclusive
-func IsLoop(xs []int , start, end int) bool {
-	l := end - start
-	if end+l >= len(xs) {
-		return false
+func (g *Grid) Key() Key {
+	h := g.CalcHash()
+	k := Key{
+		Load: g.CalcLoad(),
 	}
-	for i := 0; i < l; i++ {
-		if xs[start+i] != xs[end+i] {
-			return false
-		}
+	copy(k.Hash[:], h)
+	return k
+}
+
+func (g *Grid) CalcHash() []byte {
+	hash := sha1.New()
+	for _, row := range g.Data {
+		hash.Write(row)
 	}
-	return true
+	return hash.Sum(nil)
 }
