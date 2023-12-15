@@ -1,6 +1,6 @@
 package main
 
-// https://adventofcode.com/2023/day/XX
+// https://adventofcode.com/2023/day/15
 
 import (
 	"fmt"
