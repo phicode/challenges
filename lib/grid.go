@@ -16,6 +16,12 @@ func (g *Grid[T]) SetRow(i int, data []T) {
 	copy(g.Data[i], data)
 }
 
+func (g *Grid[T]) Get(row, col int) T    { return g.Data[row][col] }
+func (g *Grid[T]) Set(row, col int, v T) { g.Data[row][col] = v }
+func (g *Grid[T]) IsValidPosition(row, col int) bool {
+	return row >= 0 && col >= 0 && row < g.Rows() && col < g.Columns()
+}
+
 func NewByteGridFromStrings(xs []string) Grid[byte] {
 	g := NewGrid[byte](len(xs), len(xs[0]))
 	for i, x := range xs {
