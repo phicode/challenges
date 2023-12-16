@@ -4,7 +4,6 @@ package main
 
 import (
 	"fmt"
-	"runtime"
 	"strings"
 
 	"git.bind.ch/phil/challenges/lib"
@@ -18,84 +17,48 @@ func main() {
 	ProcessPart1("aoc23/day12/input.txt")
 
 	ProcessPart2("aoc23/day12/example.txt")
-	//ProcessPart2("aoc23/day12/input.txt")
+	ProcessPart2("aoc23/day12/input.txt")
 }
 
 func ProcessPart1(name string) {
 	fmt.Println("Part 1 input:", name)
+	Process(name, false)
+}
+
+func ProcessPart2(name string) {
+	fmt.Println("Part 1 input:", name)
+	Process(name, true)
+}
+
+func Process(name string, extend bool) {
 	lines := lib.ReadLines(name)
 	sequences := ParseSequences(lines)
-	var sum, sumalt int
+	var sum int
 	for _, s := range sequences {
-		c, alt := SolveCombinations(s)
-		//if c != alt {
-		//	fmt.Println(s)
-		//	fmt.Println(c, "!=", alt)
-		//	//return
-		//}
+		if extend {
+			s = ExtendSequenceToPart2(s)
+		}
+		c := SolveCombinations(s)
 		sum += c
-		sumalt += alt
 		if VERBOSE >= 1 {
 			fmt.Println(s)
 			fmt.Println("combinations:", c)
 		}
 	}
 	fmt.Println("Sum:", sum)
-	fmt.Println("Sum alt:", sumalt)
 	fmt.Println()
 }
 
-func SolveCombinations(s Sequence) (int, int) {
-	matcher, n := PartTypesToMatcher(s.GroupOfDamaged)
-	c := matcher.Match(&s, 0)
-	return *n, c
+type CacheKey struct {
+	Pos  int
+	Rock int
 }
+type Cache map[CacheKey]int
 
-func ProcessPart2(name string) {
-	fmt.Println("Part 2 input:", name)
-	lines := lib.ReadLines(name)
-	sequences := ParseSequences(lines)
-
-	results := make(chan int, 1)
-	jobs := make(chan Sequence, 1)
-
-	// job generator
-	go func() {
-		for _, s := range sequences {
-			extended := ExtendSequenceToPart2(s)
-			jobs <- extended
-		}
-	}()
-
-	// solvers
-	parallel := max(4, runtime.NumCPU())
-	for i := 0; i < parallel; i++ {
-		go func() {
-			for seq := range jobs {
-				c, _ := SolveCombinations(seq)
-				if VERBOSE >= 1 {
-					fmt.Println(seq)
-					fmt.Println("combinations:", c)
-				}
-				results <- c
-			}
-		}()
-	}
-
-	// aggregator
-	var sum int
-	for i := 0; i < len(sequences); i++ {
-		result := <-results
-		sum += result
-	}
-	fmt.Println("Sum:", sum)
-	fmt.Println()
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
+func SolveCombinations(s Sequence) int {
+	matcher := PartTypesToMatcher(s.GroupOfDamaged)
+	cache := make(Cache)
+	return matcher.Match(&s, cache, 0)
 }
 
 ////////////////////////////////////////////////////////////
@@ -106,17 +69,7 @@ const (
 	Unknown PartType = iota
 	Operational
 	Damaged
-	Undefined
 )
-
-type Part struct {
-	T   PartType
-	Len int
-}
-
-func (p Part) String() string {
-	return fmt.Sprintf("%s*%d", p.T, p.Len)
-}
 
 type Sequence struct {
 	//Parts          []Part
@@ -168,16 +121,17 @@ func (t PartType) String() string {
 		return "#"
 	case Unknown:
 		return "?"
+	default:
+		return ""
 	}
-	return ""
 }
 
 type Matcher interface {
-	Match(s *Sequence, pos int) int
+	Match(s *Sequence, cache Cache, pos int) int
 	SetNext(matcher Matcher)
 }
 
-// test that a sequence of n or more occurence match
+// OperationalMatcher tests sequences of N or more matches of operational gears
 type OperationalMatcher struct {
 	N    int // match this many or more part types
 	Next Matcher
@@ -194,15 +148,15 @@ func MakeOperationalMatcher(n int, previous Matcher) Matcher {
 	return matcher
 }
 
-func (m *OperationalMatcher) Match(s *Sequence, pos int) int {
+func (m *OperationalMatcher) Match(s *Sequence, cache Cache, pos int) int {
 	var sum int
 	if m.N == 0 {
 		// zero or matched allowed, test zero first
-		sum += m.Next.Match(s, pos)
+		sum += m.Next.Match(s, cache, pos)
 	}
 	for m.Accept(s, pos) {
 		pos++
-		sum += m.Next.Match(s, pos)
+		sum += m.Next.Match(s, cache, pos)
 	}
 	return sum
 }
@@ -217,22 +171,24 @@ func (m *OperationalMatcher) Accept(s *Sequence, pos int) bool {
 
 func (m *OperationalMatcher) SetNext(next Matcher) { m.Next = next }
 
-// test that a sequence of n matches
+// RockMatcher matches a rock of size N.
 type RockMatcher struct {
 	N    int // match this many or more part types
+	Rock int
 	Next Matcher
 }
 
-func MakeRockMatcher(n int, previous Matcher) Matcher {
+func MakeRockMatcher(n int, rock int, previous Matcher) Matcher {
 	matcher := &RockMatcher{
 		N:    n,
+		Rock: rock,
 		Next: nil,
 	}
 	previous.SetNext(matcher)
 	return matcher
 }
 
-func (m *RockMatcher) Match(s *Sequence, pos int) int {
+func (m *RockMatcher) Match(s *Sequence, cache Cache, pos int) int {
 	rem := len(s.PartsTypes) - pos
 	if rem < m.N {
 		return 0
@@ -242,7 +198,16 @@ func (m *RockMatcher) Match(s *Sequence, pos int) int {
 			return 0
 		}
 	}
-	return m.Next.Match(s, pos+m.N)
+	key := CacheKey{
+		Pos:  pos,
+		Rock: m.Rock,
+	}
+	if v, found := cache[key]; found {
+		return v
+	}
+	v := m.Next.Match(s, cache, pos+m.N)
+	cache[key] = v
+	return v
 }
 
 func (m *RockMatcher) Accept(s *Sequence, pos int) bool {
@@ -253,20 +218,19 @@ func (m *RockMatcher) Accept(s *Sequence, pos int) bool {
 func (m *RockMatcher) SetNext(next Matcher) { m.Next = next }
 
 type EndMatcher struct {
-	Count int
 }
 
-func (m *EndMatcher) Match(s *Sequence, pos int) int {
+func (m *EndMatcher) Match(s *Sequence, _ Cache, pos int) int {
 	if pos == len(s.PartsTypes) {
-		m.Count++
+		return 1
 	}
-	return 1
+	return 0
 }
 func (m *EndMatcher) SetNext(_ Matcher) {
 	panic("the end cannot continue")
 }
 
-func PartTypesToMatcher(groups []int) (Matcher, *int) {
+func PartTypesToMatcher(groups []int) Matcher {
 	start := MakeOperationalMatcher(0, nil)
 	end := &EndMatcher{}
 	current := start
@@ -274,30 +238,11 @@ func PartTypesToMatcher(groups []int) (Matcher, *int) {
 		if i > 0 {
 			current = MakeOperationalMatcher(1, current)
 		}
-		current = MakeRockMatcher(v, current)
+		current = MakeRockMatcher(v, i, current)
 	}
 	current = MakeOperationalMatcher(0, current)
 	current.SetNext(end)
-	return start, &end.Count
-}
-
-func MakeLinearMatcher(groups []int) []Matcher {
-	n := len(groups)
-	matchers := make([]Matcher, 0, n+n+1)                             // every number, space in between, start and end
-	matchers = append(matchers, &OperationalMatcher{N: 0, Next: nil}) // start
-	for i, g := range groups {
-		if i > 0 {
-			matchers = append(matchers, &OperationalMatcher{N: 1, Next: nil})
-		}
-		matchers = append(matchers, &RockMatcher{N: g, Next: nil})
-	}
-	// i=0
-	matchers = append(matchers, &OperationalMatcher{N: 0, Next: nil}) // end
-	return matchers
-}
-
-func RunMatchers(ms []Matcher) {
-
+	return start
 }
 
 func ExtendSequenceToPart2(s Sequence) Sequence {

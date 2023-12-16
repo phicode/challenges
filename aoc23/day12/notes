@@ -1,36 +1,11 @@
-0, 5, 13
-1, 5, 13
-2, 5, 13
-3, 5, 13
+Part 1 input: aoc23/day12/example.txt
+Sum: 21
 
+Part 1 input: aoc23/day12/input.txt
+Sum: 7732
 
+Part 2 input: aoc23/day12/example.txt
+Sum: 525152
 
-
-4739 is too low for full puzzle input
-5562 is too low for full puzzle input
-9227 is too high
-6528 is wrong
-
-
-
-Sequence 1,2 means
-*: . or ?
-1: # or ?
-1+: . or ?
-2: # or ?
-*: . or ? or eof
-
-Matcher-State
-position
-
-
-result: 7 -> correct
-[????#?.???.?] [1 2]
-
-1: [#??##?.???.?]
-2: [#???##.???.?]
-3: [?#?##?.???.?]
-4: [?#??##.???.?]
-5: [??#?##.???.?]
-6: [????#?.##?.?]
-7: [????#?.?##.?]
+Part 1 input: aoc23/day12/input.txt
+Sum: 4500070301581
