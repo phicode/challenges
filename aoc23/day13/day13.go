@@ -13,8 +13,8 @@ import (
 var VERBOSE = 2
 
 func main() {
-	//ProcessPart1("aoc23/day13/example.txt")
-	//ProcessPart1("aoc23/day13/input.txt")
+	ProcessPart1("aoc23/day13/example.txt")
+	ProcessPart1("aoc23/day13/input.txt")
 
 	ProcessPart2("aoc23/day13/example.txt")
 	ProcessPart2("aoc23/day13/input.txt")

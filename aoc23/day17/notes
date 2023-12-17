@@ -2,3 +2,15 @@ Possible Directions per move: 3
 Combinations for the next 4 move: 3^4=81
 
 A nodes carries the history of how someone "got there", namely the last 3 moves
+
+
+Part2
+Minimum of 4 blocks
+Maximum of 10 blocks
+
+7 Distances * 3 Directions = 21 Paths per Node
+141*142 = 19881 Nodes
+Total: 19881*21 = 417501 Paths
+
+
+41343231 = 21

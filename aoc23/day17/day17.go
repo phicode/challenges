@@ -10,14 +10,15 @@ import (
 	"git.bind.ch/phil/challenges/lib"
 )
 
-var VERBOSE = 1
+var VERBOSE = 0
 
 func main() {
 	ProcessPart1("aoc23/day17/example.txt")
 	ProcessPart1("aoc23/day17/input.txt")
-	//
-	//ProcessPart2("aoc23/day17/example.txt")
-	//ProcessPart2("aoc23/day17/input.txt")
+
+	ProcessPart2("aoc23/day17/example.txt")  // 94
+	ProcessPart2("aoc23/day17/example2.txt") // 71
+	ProcessPart2("aoc23/day17/input.txt")    // 1055
 }
 
 func ProcessPart1(name string) {
@@ -32,15 +33,16 @@ func ProcessPart1(name string) {
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
-	_ = lines
+	g := ParseInput(lines)
+	nodes := BuildPart2Nodes(g)
+
+	//if VERBOSE >= 2 {
+	//	DebugPart2Node(Pos{0, 0}, nodes)
+	//}
+
+	FollowPart2(g, nodes)
 
 	fmt.Println()
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -154,14 +156,16 @@ type HistoryNode struct {
 }
 
 func Follow(g *Grid) {
-	nodesMap := BuildNodes(g)
+	nodesMap := BuildPart1Nodes(g)
 	if VERBOSE >= 1 {
 		fmt.Println("nodes:", len(nodesMap))
 	}
 
-	//DebugNode(Pos{}, nodesMap)
-	//DebugNode(Pos{1, 1}, nodesMap)
-	//DebugNode(Pos{}, nodesMap)
+	if VERBOSE >= 3 {
+		DebugNode(Pos{}, nodesMap)
+		DebugNode(Pos{1, 1}, nodesMap)
+		DebugNode(Pos{}, nodesMap)
+	}
 
 	nodes := lib.MapKeys(nodesMap)
 	isStart := func(h HistoryNodeKey) bool { return h.P.C == 0 && h.P.R == 0 }
@@ -170,15 +174,16 @@ func Follow(g *Grid) {
 	}
 	cost := func(h HistoryNodeKey) int { return nodesMap[h].HeatLoss }
 	dijkstra := lib.DijkstraWithCost[HistoryNodeKey](nodes, isStart, neighbors, cost)
-	fmt.Println(AccumulateHeatLoss(g, nodesMap, dijkstra))
+	heatLoss := AccumulateHeatLoss(g, nodesMap, dijkstra)
+	fmt.Println("heat loss:", heatLoss)
 }
 
 func AccumulateHeatLoss(g *Grid, nodes map[HistoryNodeKey]*HistoryNode, paths map[HistoryNodeKey]*lib.Node[HistoryNodeKey]) int {
 	rows, cols := g.Rows(), g.Columns()
 	minHeatLoss := math.MaxInt
 	var minEnd *lib.Node[HistoryNodeKey]
-	for k, _ := range nodes {
-		if k.P.R == rows-1 && k.P.C == cols-1 {
+	for k := range nodes {
+		if k.P.R == rows-1 && k.P.C == cols-1 { // end node
 			node := paths[k]
 			if VERBOSE >= 2 {
 				fmt.Println("End node found", node.Distance)
@@ -211,7 +216,7 @@ func DescribePath(end *lib.Node[HistoryNodeKey]) {
 	}
 }
 
-func BuildNodes(g *Grid) map[HistoryNodeKey]*HistoryNode {
+func BuildPart1Nodes(g *Grid) map[HistoryNodeKey]*HistoryNode {
 	start := &HistoryNode{
 		HistoryNodeKey: HistoryNodeKey{P: Pos{0, 0}},
 		HeatLoss:       g.Get(0, 0),
@@ -241,9 +246,7 @@ func ApplyMoveAndFollow(g *Grid, nodes map[HistoryNodeKey]*HistoryNode, node *Hi
 		nodes[key] = newNode
 		TestMovesAndFollow(g, nodes, newNode)
 	}
-	if slices.Contains(node.Neighbors, key) {
-		//fmt.Println("double")
-	} else {
+	if !slices.Contains(node.Neighbors, key) {
 		node.Neighbors = append(node.Neighbors, key)
 	}
 }
@@ -252,8 +255,144 @@ func DebugNode(p Pos, nodes map[HistoryNodeKey]*HistoryNode) {
 	fmt.Println("debugging:", p)
 	for k, v := range nodes {
 		if k.P == p {
-			fmt.Println(k.Moves, "neighbors:", len(v.Neighbors), "heatloss:", v.HeatLoss)
+			fmt.Println(k.Moves, "neighbors:", len(v.Neighbors), "heat loss:", v.HeatLoss)
 		}
 	}
 	fmt.Println()
+}
+
+type Part2Node struct {
+	Visited   bool
+	Neighbors []Part2Key
+	// value: cost
+	NeighborCost map[Part2Key]int
+}
+
+func (n *Part2Node) AddNeighbor(pos Part2Key, cost int) {
+	if slices.Contains(n.Neighbors, pos) {
+		panic("double add")
+	}
+	n.Neighbors = append(n.Neighbors, pos)
+	n.NeighborCost[pos] = cost
+}
+
+func BuildPart2Nodes(g *Grid) map[Part2Key]*Part2Node {
+	nodes := make(map[Part2Key]*Part2Node)
+	start := Part2Key{Pos{0, 0}, Stand}
+	nodes[start] = NewPart2Node()
+	TestMovesAndFollowPart2(g, nodes, start)
+	if VERBOSE >= 1 {
+		fmt.Println("part2 nodes:", len(nodes))
+	}
+	return nodes
+}
+
+func NewPart2Node() *Part2Node {
+	return &Part2Node{NeighborCost: make(map[Part2Key]int)}
+}
+
+func TestMovesAndFollowPart2(g *Grid, nodes map[Part2Key]*Part2Node, vertex Part2Key) {
+	currentNode := nodes[vertex]
+	if currentNode == nil {
+		panic(fmt.Errorf("node not found: %v", vertex))
+	}
+	if currentNode.Visited {
+		//fmt.Println("node already visited, aborting")
+		return
+	}
+	currentNode.Visited = true
+	for _, dir := range Directions {
+		if dir == vertex.Dir || dir == vertex.Dir.Reverse() {
+			continue
+		}
+		for i := 4; i <= 10; i++ {
+			targetVertex := Part2Key{Pos{vertex.Pos.R + i*dir.R, vertex.Pos.C + i*dir.C}, dir}
+			if g.IsValidPosition(targetVertex.Pos.R, targetVertex.Pos.C) {
+				node, found := nodes[targetVertex]
+				if !found {
+					node = NewPart2Node()
+					nodes[targetVertex] = node
+				}
+				TestMovesAndFollowPart2(g, nodes, targetVertex)
+				currentNode.AddNeighbor(targetVertex, CalcCost(g, targetVertex.Pos, dir, i))
+			}
+		}
+	}
+}
+
+func CalcCost(g *Grid, pos Pos, dir Direction, l int) int {
+	var cost int
+	reverse := dir.Reverse()
+	for i := 0; i < l; i++ {
+		cost += g.Get(pos.R, pos.C)
+		pos = pos.Add(reverse)
+	}
+	return cost
+}
+
+func FollowPart2(g *Grid, nodes map[Part2Key]*Part2Node) {
+	nodeKeys := lib.MapKeys(nodes)
+	start := func(k Part2Key) bool { return k.Pos.IsZero() }
+	neighbors := func(k Part2Key) []Part2Key {
+		return nodes[k].Neighbors
+	}
+	cost := func(u Part2Key, v Part2Key) int {
+		c := nodes[u].NeighborCost[v]
+		if c <= 0 {
+			panic("invalid state")
+		}
+		return c
+	}
+	paths := lib.DijkstraWithCost2(nodeKeys, start, neighbors, cost)
+	heatLoss := VisitPart2EndNodes(g, nodes, paths)
+	fmt.Println("heat loss:", heatLoss)
+}
+
+func VisitPart2EndNodes(g *Grid, nodes map[Part2Key]*Part2Node, paths map[Part2Key]*lib.Node[Part2Key]) int {
+	rows, cols := g.Rows(), g.Columns()
+	minHeatLoss := math.MaxInt
+	for k := range nodes {
+		if k.Pos.R == rows-1 && k.Pos.C == cols-1 { // end node
+			node := paths[k]
+			if VERBOSE >= 2 {
+				fmt.Println("End node found", node.Distance)
+			}
+			if node.Distance < minHeatLoss {
+				minHeatLoss = node.Distance
+			}
+			if VERBOSE >= 2 {
+				DescribePart2Path(node, nodes)
+			}
+		}
+	}
+	return minHeatLoss
+}
+
+func DescribePart2Path(end *lib.Node[Part2Key], nodes map[Part2Key]*Part2Node) {
+	if end.Prev == nil {
+		fmt.Println("found unvisited end node")
+		return
+	}
+	var path []*lib.Node[Part2Key]
+	path = append(path, end)
+	current := end
+	for !current.Value.Pos.IsZero() { // start node
+		current = current.Prev
+		path = append(path, current)
+	}
+	slices.Reverse(path)
+	fmt.Println("path:")
+	var totalCost int
+	for i := 1; i < len(path); i++ {
+		prev, current := path[i-1], path[i]
+		edgeCost := nodes[prev.Value].NeighborCost[current.Value]
+		totalCost += edgeCost
+		fmt.Println(prev.Value, " -> ", current.Value, ", cost:", edgeCost, ", sum:", totalCost)
+	}
+	fmt.Println()
+}
+
+type Part2Key struct {
+	Pos Pos
+	Dir Direction // how we got here
 }
