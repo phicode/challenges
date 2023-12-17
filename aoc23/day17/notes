@@ -1,3 +1,24 @@
+Solution:
+
+Part 1 input: aoc23/day17/example.txt
+heat loss: 102
+
+Part 1 input: aoc23/day17/input.txt
+heat loss: 886
+
+Part 2 input: aoc23/day17/example.txt
+heat loss: 94
+
+Part 2 input: aoc23/day17/example2.txt
+heat loss: 71
+
+Part 2 input: aoc23/day17/input.txt
+heat loss: 1055
+
+--------------------------------------
+
+
+
 Possible Directions per move: 3
 Combinations for the next 4 move: 3^4=81
 

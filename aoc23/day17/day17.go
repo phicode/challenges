@@ -172,7 +172,7 @@ func Follow(g *Grid) {
 	neighbors := func(h HistoryNodeKey) []HistoryNodeKey {
 		return nodesMap[h].Neighbors
 	}
-	cost := func(h HistoryNodeKey) int { return nodesMap[h].HeatLoss }
+	cost := func(u, v HistoryNodeKey) int { return nodesMap[v].HeatLoss } // cost is stored on the target vertex
 	dijkstra := lib.DijkstraWithCost[HistoryNodeKey](nodes, isStart, neighbors, cost)
 	heatLoss := AccumulateHeatLoss(g, nodesMap, dijkstra)
 	fmt.Println("heat loss:", heatLoss)
@@ -343,7 +343,7 @@ func FollowPart2(g *Grid, nodes map[Part2Key]*Part2Node) {
 		}
 		return c
 	}
-	paths := lib.DijkstraWithCost2(nodeKeys, start, neighbors, cost)
+	paths := lib.DijkstraWithCost(nodeKeys, start, neighbors, cost)
 	heatLoss := VisitPart2EndNodes(g, nodes, paths)
 	fmt.Println("heat loss:", heatLoss)
 }
