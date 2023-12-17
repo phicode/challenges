@@ -1,0 +1,4 @@
+Possible Directions per move: 3
+Combinations for the next 4 move: 3^4=81
+
+A nodes carries the history of how someone "got there", namely the last 3 moves

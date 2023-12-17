@@ -18,7 +18,9 @@ const MEMOIZATION = true
 func main() {
 	fmt.Println("==== Part 1")
 	Process("aoc22/day16/example.txt") // 1651
-	Process("aoc22/day16/input.txt")   // 1724
+	//ProcessStep1v2("aoc22/day16/example.txt")
+
+	Process("aoc22/day16/input.txt") // 1724
 
 	//Process2("aoc22/day16/example.txt", 30) // 2031
 
@@ -387,7 +389,7 @@ func (s *State) run(i int) int {
 
 				if numOpen == 1 {
 					r.apply(true, cA)
-					best = max(best, r.Value)
+					best = max(best, r.Value+s.run(i+1))
 					r.undo(true, cA)
 				}
 				// else: ignore combination
@@ -582,6 +584,42 @@ type ShortestPaths struct {
 	//   key: target node
 	//   value: lib.Node of target node
 	shortest map[string]map[string]*lib.Node[string]
+	// key: source node
+	// value:
+	//   key: target node
+	//
+	DistanceTo map[string]map[string]int
+}
+
+func (p *ShortestPaths) CalcDistanceTo(name string) {
+	m, found := p.DistanceTo[name]
+	if !found {
+		m = make(map[string]int)
+		p.DistanceTo[name] = m
+	}
+	paths := p.shortest[name]
+	if paths == nil {
+		panic("invalid state")
+	}
+	for target, node := range paths {
+		m[target] = distanceTo(name, node)
+	}
+}
+
+func (p *ShortestPaths) GetDistanceTo(src, dst string) int {
+	if src == dst {
+		return 0
+	}
+	return p.DistanceTo[src][dst]
+}
+
+func distanceTo(start string, node *lib.Node[string]) int {
+	var dist int
+	for node.Value != start {
+		dist += node.Distance
+		node = node.Prev
+	}
+	return dist
 }
 
 func NewShortestPaths(vs Valves) *ShortestPaths {
@@ -598,12 +636,14 @@ func NewShortestPaths(vs Valves) *ShortestPaths {
 		return neighs
 	}
 	sp := &ShortestPaths{
-		vs:       vs,
-		shortest: make(map[string]map[string]*lib.Node[string]),
+		vs:         vs,
+		shortest:   make(map[string]map[string]*lib.Node[string]),
+		DistanceTo: make(map[string]map[string]int),
 	}
 	for _, v := range vs {
 		isStart := func(n string) bool { return n == v.Name }
 		sp.shortest[v.Name] = lib.Dijkstra(names, isStart, neighbors)
+		sp.CalcDistanceTo(v.Name)
 	}
 	return sp
 }
@@ -640,8 +680,10 @@ func (s *StateV2) BestValueStep2(mem *memory) int {
 		return v
 	}
 	var best int
-	for i := 0; i <= len(s.A.Tunnels); i++ {
-		for j := 0; j <= len(s.B.Tunnels); j++ {
+	//for i := 0; i <= len(s.A.Tunnels); i++ {
+	//	for j := 0; j <= len(s.B.Tunnels); j++ {
+	for i := len(s.A.Tunnels); i >= 0; i-- {
+		for j := len(s.B.Tunnels); j >= 0; j-- {
 			var next StateV2
 			ov := s.OV
 			var flow int // flow added by this step
@@ -685,4 +727,67 @@ func (ov *OpenValves) Open(v *Valve, rem int) int {
 		return v.ValueAtTime(rem)
 	}
 	return 0
+}
+
+// //////////////////////////////////////////////////////////
+func ProcessStep1v2(name string) {
+	fmt.Println("input:", name)
+	lines := ReadInput(name)
+	valves := ParseValves(lines)
+
+	sp := NewShortestPaths(valves)
+	ov := OpenValves(0)
+
+	var totalFlow int
+	position := valves.Get("AA")
+	var nextToOpen *Valve
+	for i := 0; i < 30; i++ {
+		if nextToOpen == nil {
+			nextToOpen = FindBestToOpen(position, valves, sp, ov, 30-i)
+		}
+		if nextToOpen == position {
+			// open this turn
+			addedFlow := position.ValueAtTime(30 - i)
+			totalFlow += addedFlow
+			fmt.Println("opening valve", position.Name, "for", addedFlow, "flow")
+			ov.SetOpen(position.Idx)
+			nextToOpen = nil
+			continue // turn is over
+		}
+		if nextToOpen != nil {
+			// take one step closer
+			position = Move(position, nextToOpen, sp, valves)
+		}
+	}
+	fmt.Println("Best:", totalFlow)
+
+	fmt.Println()
+}
+
+func Move(src *Valve, dst *Valve, sp *ShortestPaths, vs Valves) *Valve {
+	node := sp.shortest[src.Name][dst.Name]
+	for node.Prev.Value != src.Name {
+		node = node.Prev
+	}
+	return vs.Get(node.Value)
+}
+
+func FindBestToOpen(position *Valve, vs Valves, sp *ShortestPaths, ov OpenValves, remainingTime int) *Valve {
+	var best *Valve
+	var bestFlow int
+	for name, v := range vs {
+		// ignore valves without flow or already open ones
+		if v.Flow == 0 || ov.IsOpen(v.Idx) {
+			continue
+		}
+		distance := sp.GetDistanceTo(position.Name, name)
+		// move to target node, take one turn to open
+		contributionTime := remainingTime - distance - 1
+		totalFlowAdded := contributionTime * v.Flow
+		if best == nil || totalFlowAdded > bestFlow {
+			best = v
+			bestFlow = totalFlowAdded
+		}
+	}
+	return best
 }

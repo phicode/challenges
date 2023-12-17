@@ -44,3 +44,19 @@ position
 action (open, move)
 direction (self, neighbor)
 result
+
+
+
+new cache key: order of opening valves by turn
+space:
+  number of turns: 30
+  *
+  valve number: 15 => 4bit
+  = 120 bit = 15 byte
+
+old cache key: uint64 + int16 + int16 = 96bit
+
+
+
+
+

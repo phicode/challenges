@@ -7,10 +7,10 @@ import (
 type IndexUpdater[T any] func(t T, i int)
 
 type Heap[T any] struct {
-	impl himpl[T]
+	impl heapImpl[T]
 }
 
-type himpl[T any] struct {
+type heapImpl[T any] struct {
 	less    func(a, b T) bool
 	updater IndexUpdater[T]
 	data    []T
@@ -19,28 +19,29 @@ type himpl[T any] struct {
 func NewHeap[T any](data []T, less func(a, b T) bool) *Heap[T] {
 	return NewHeapWithUpdater(data, less, nil)
 }
-func NewHeapWithUpdater[T any](data []T, less func(a, b T) bool, updater IndexUpdater[T]) *Heap[T] {
+
+func NewHeapWithUpdater[T any](data []T, less func(a, b T) bool, indexUpdater IndexUpdater[T]) *Heap[T] {
 	h := &Heap[T]{
-		impl: himpl[T]{
+		impl: heapImpl[T]{
 			less:    less,
 			data:    data,
-			updater: updater,
+			updater: indexUpdater,
 		},
 	}
-	if updater != nil {
+	if indexUpdater != nil {
 		for i, t := range data {
-			updater(t, i)
+			indexUpdater(t, i)
 		}
 	}
 	heap.Init(&h.impl)
 	return h
 }
 
-var _ heap.Interface = (*himpl[any])(nil)
+var _ heap.Interface = (*heapImpl[any])(nil)
 
-func (h *himpl[T]) Len() int           { return len(h.data) }
-func (h *himpl[T]) Less(i, j int) bool { return h.less(h.data[i], h.data[j]) }
-func (h *himpl[T]) Swap(i, j int) {
+func (h *heapImpl[T]) Len() int           { return len(h.data) }
+func (h *heapImpl[T]) Less(i, j int) bool { return h.less(h.data[i], h.data[j]) }
+func (h *heapImpl[T]) Swap(i, j int) {
 	h.data[i], h.data[j] = h.data[j], h.data[i]
 	if h.updater != nil {
 		h.updater(h.data[i], i)
@@ -48,10 +49,10 @@ func (h *himpl[T]) Swap(i, j int) {
 	}
 }
 
-func (h *himpl[T]) Push(x any) {
+func (h *heapImpl[T]) Push(x any) {
 	h.data = append(h.data, x.(T))
 }
-func (h *himpl[T]) Pop() any {
+func (h *heapImpl[T]) Pop() any {
 	l := len(h.data)
 	v := h.data[l-1]
 	if h.updater != nil {

@@ -5,6 +5,11 @@ import (
 )
 
 func Dijkstra[T comparable](data []T, start func(a T) bool, neigh func(t T) []T) map[T]*Node[T] {
+	costOne := func(_ T) int { return 1 }
+	return DijkstraWithCost(data, start, neigh, costOne)
+}
+
+func DijkstraWithCost[T comparable](data []T, start func(a T) bool, neigh func(t T) []T, cost func(T) int) map[T]*Node[T] {
 	nodes := make([]*Node[T], len(data))
 	nodeByValue := make(map[T]*Node[T])
 	for i, d := range data {
@@ -16,7 +21,7 @@ func Dijkstra[T comparable](data []T, start func(a T) bool, neigh func(t T) []T)
 		}
 	}
 
-	q := NewHeapWithUpdater[*Node[T]](nodes, nodeless, nodeupdater)
+	q := NewHeapWithUpdater[*Node[T]](nodes, nodeIsLess[T], updateNodeIndex[T])
 
 	for q.Len() > 0 {
 		u := q.Pop()
@@ -27,7 +32,7 @@ func Dijkstra[T comparable](data []T, start func(a T) bool, neigh func(t T) []T)
 			if v.visited {
 				continue
 			}
-			alt := u.Distance + 1
+			alt := u.Distance + cost(v.Value)
 			if alt < v.Distance {
 				v.Prev = u
 				v.Distance = alt
@@ -48,9 +53,9 @@ type Node[T any] struct {
 	visited  bool
 }
 
-func nodeless[T any](a, b *Node[T]) bool {
+func nodeIsLess[T any](a, b *Node[T]) bool {
 	return a.Distance < b.Distance
 }
-func nodeupdater[T any](a *Node[T], i int) {
+func updateNodeIndex[T any](a *Node[T], i int) {
 	a.idx = i
 }
