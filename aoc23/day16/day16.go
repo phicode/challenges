@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"git.bind.ch/phil/challenges/lib"
+	"git.bind.ch/phil/challenges/lib/rowcol"
 )
 
 var VERBOSE = 1
@@ -83,8 +84,8 @@ func log(v int, msg string) {
 ////////////////////////////////////////////////////////////
 
 type Grid struct {
-	lib.Grid[byte]
-	LaserDirection lib.Grid[Direction]
+	rowcol.Grid[byte]
+	LaserDirection rowcol.Grid[Direction]
 }
 
 const (
@@ -124,10 +125,10 @@ func (d Direction) String() string {
 }
 
 func ParseGrid(lines []string) *Grid {
-	grid := lib.NewByteGridFromStrings(lines)
+	grid := rowcol.NewByteGridFromStrings(lines)
 	return &Grid{
-		Grid:           lib.NewByteGridFromStrings(lines),
-		LaserDirection: lib.NewGrid[Direction](grid.Rows(), grid.Columns()),
+		Grid:           rowcol.NewByteGridFromStrings(lines),
+		LaserDirection: rowcol.NewGrid[Direction](grid.Rows(), grid.Columns()),
 	}
 }
 

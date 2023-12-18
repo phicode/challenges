@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"git.bind.ch/phil/challenges/lib"
+	"git.bind.ch/phil/challenges/lib/rowcol"
 )
 
 var VERBOSE = 1
@@ -102,11 +103,11 @@ const (
 )
 
 type Grid struct {
-	lib.Grid[byte]
+	rowcol.Grid[byte]
 }
 
 func ParseInput(lines []string) *Grid {
-	return &Grid{lib.NewByteGridFromStrings(lines)}
+	return &Grid{rowcol.NewByteGridFromStrings(lines)}
 }
 
 func (g *Grid) MoveUp() {

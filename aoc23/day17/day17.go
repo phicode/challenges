@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"git.bind.ch/phil/challenges/lib"
+	"git.bind.ch/phil/challenges/lib/rowcol"
 )
 
 var VERBOSE = 0
@@ -42,13 +43,13 @@ func Process(name string, minMove, maxMove int) {
 ////////////////////////////////////////////////////////////
 
 type Grid struct {
-	lib.Grid[int]
+	rowcol.Grid[int]
 }
 
 func ParseInput(lines []string) *Grid {
 	rows := len(lines)
 	cols := len(lines[0])
-	g := lib.NewGrid[int](rows, cols)
+	g := rowcol.NewGrid[int](rows, cols)
 	for rowIdx, l := range lines {
 		row := make([]int, cols)
 		for i, v := range l {
