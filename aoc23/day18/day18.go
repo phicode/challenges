@@ -4,56 +4,75 @@ package main
 
 import (
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"git.bind.ch/phil/challenges/lib"
 	"git.bind.ch/phil/challenges/lib/rowcol"
 )
 
-// TODO: timing boilerplate
 var VERBOSE = 1
 
 func main() {
-	ProcessPart1("aoc23/day18/example.txt") // 62
-	ProcessPart1("aoc23/day18/input.txt")   // 67891
+	ProcessPart1_FirstSolution("aoc23/day18/example.txt") // 62
+	ProcessPart1("aoc23/day18/example.txt")               // 62
+	ProcessPart1("aoc23/day18/input.txt")                 // 67891
 
-	//ProcessPart2("aoc23/day18/example.txt")
-	//ProcessPart2("aoc23/day18/input.txt")
+	ProcessPart2("aoc23/day18/example.txt") // 952408144115
+	ProcessPart2("aoc23/day18/input.txt")
 }
 
 func ProcessPart1(name string) {
 	fmt.Println("Part 1 input:", name)
 	lines := lib.ReadLines(name)
 	instrs := ParseInstructions(lines)
-	for _, instr := range instrs {
-		fmt.Println(instr)
+	Process(instrs)
+}
+
+func ProcessPart1_FirstSolution(name string) {
+	fmt.Println("Part 1 input:", name)
+	lines := lib.ReadLines(name)
+	instrs := ParseInstructions(lines)
+	if VERBOSE >= 1 {
+		for _, instr := range instrs {
+			fmt.Println(instr)
+		}
 	}
 
 	lagoon := CreateLagoon(instrs)
 	lagoon.DigPath(instrs)
-	lagoon.Print()
+	if VERBOSE >= 1 {
+		lagoon.Print()
+	}
 
 	lagoon.DigInterior()
-	lagoon.Print()
+	if VERBOSE >= 1 {
+		lagoon.Print()
+	}
 
-	volume := lagoon.CountDugOut()
-	fmt.Println("Volume:", volume)
-
+	area := lagoon.CountDugOut()
+	fmt.Println("Area:", area)
 	fmt.Println()
 }
 
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
-	_ = lines
-
-	fmt.Println()
+	instrs := ParsePart2Instructions(lines)
+	Process(instrs)
 }
 
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
+func Process(instrs []Instruction) {
+	if VERBOSE >= 2 {
+		for _, instr := range instrs {
+			fmt.Println(instr)
+		}
 	}
+	polygon := BuildPolygon(instrs)
+	area := Area(polygon)
+	fmt.Println("Area:", area)
+	fmt.Println()
 }
 
 ////////////////////////////////////////////////////////////
@@ -84,6 +103,48 @@ func ParseInstruction(l string) Instruction {
 	}
 }
 
+func ParsePart2Instructions(lines []string) []Instruction {
+	var rv []Instruction
+	for _, l := range lines {
+		rv = append(rv, ParsePart2Instruction(l))
+	}
+	return rv
+}
+
+var pattern = regexp.MustCompile(`[UDLR] [0-9]+ \(#([a-z0-9]+)\)`)
+
+func ParsePart2Instruction(l string) Instruction {
+	results := pattern.FindStringSubmatch(l)
+	if len(results) != 2 { // the entire pattern plus the matched group
+		panic(fmt.Errorf("unexpected match: %v", results))
+	}
+	instruction := results[1]
+	directionRune := instruction[5]
+	distanceHex := instruction[:5]
+	var direction rowcol.Direction
+	switch directionRune {
+	case '0':
+		direction = rowcol.Right
+	case '1':
+		direction = rowcol.Down
+	case '2':
+		direction = rowcol.Left
+	case '3':
+		direction = rowcol.Up
+	default:
+		panic("invalid direction in hex code")
+	}
+	distance, err := strconv.ParseInt(distanceHex, 16, 63)
+	if err != nil {
+		panic(err)
+	}
+	return Instruction{
+		Direction: direction,
+		Distance:  int(distance),
+		Color:     0,
+	}
+}
+
 var Directions = map[rune]rowcol.Direction{
 	'L': rowcol.Left,
 	'R': rowcol.Right,
@@ -98,7 +159,11 @@ type Instruction struct {
 }
 
 func (i Instruction) String() string {
-	return fmt.Sprintf("%s %d (#%x)", i.Direction, i.Distance, i.Color)
+	if i.Color == 0 {
+		return fmt.Sprintf("%s %d", i.Direction, i.Distance)
+	} else {
+		return fmt.Sprintf("%s %d (#%x)", i.Direction, i.Distance, i.Color)
+	}
 }
 
 type Lagoon struct {
@@ -155,9 +220,11 @@ const (
 
 func CreateLagoon(instrs []Instruction) *Lagoon {
 	posMin, posMax, size := LagoonSize(instrs)
-	fmt.Println("lagoon size:", size)
-	fmt.Println("lagoon minimum:", posMin)
-	fmt.Println("lagoon maximum:", posMax)
+	if VERBOSE >= 1 {
+		fmt.Println("lagoon size:", size)
+		fmt.Println("lagoon minimum:", posMin)
+		fmt.Println("lagoon maximum:", posMax)
+	}
 
 	return &Lagoon{
 		data:      rowcol.NewGrid[Field](size.Row, size.Col),
@@ -261,4 +328,138 @@ func (l *Lagoon) CountDugOut() int {
 		}
 	}
 	return dugout
+}
+
+func BuildPath(instrs []Instruction) []rowcol.Pos {
+	rv := make([]rowcol.Pos, 0, len(instrs)+1)
+	start := rowcol.Pos{}
+	rv = append(rv, start)
+	for _, instr := range instrs {
+		vec := instr.Direction.MulS(instr.Distance)
+		end := start.Add(vec)
+		rv = append(rv, end)
+		start = end
+	}
+	return rv
+}
+
+func BuildPolygon(instrs []Instruction) []rowcol.Pos {
+	path := BuildPath(instrs)
+	path = path[:len(path)-1]
+	l := len(path)
+	var rv []rowcol.Pos
+	prev := path[l-1]
+	for i := 0; i < l; i++ {
+		current := path[i]
+		next := path[(i+1)%l]
+		dirA := Direction(prev, current)
+		dirB := Direction(current, next)
+		pc := ToPointCoordinate(current, dirA, dirB)
+		if VERBOSE >= 2 {
+			fmt.Printf("%v(%s + %s) = %v\n", current, dirA, dirB, pc)
+		}
+		rv = append(rv, pc)
+
+		prev = current
+	}
+	rv = append(rv, rv[0])
+	return rv
+}
+
+var (
+	PointCoordinateTopLeft     = rowcol.Pos{Col: 0, Row: 0}
+	PointCoordinateBottomLeft  = rowcol.Pos{Col: 0, Row: 1}
+	PointCoordinateTopRight    = rowcol.Pos{Col: 1, Row: 0}
+	PointCoordinateBottomRight = rowcol.Pos{Col: 1, Row: 1}
+)
+
+func ToPointCoordinate(current rowcol.Pos, a, b rowcol.Direction) rowcol.Pos {
+	if a == rowcol.Left {
+		if b == rowcol.Up {
+			// (-1,0),(0,-1) => (0,1)
+			return current.Add(PointCoordinateBottomLeft)
+		}
+		if b == rowcol.Down {
+			return current.Add(PointCoordinateBottomRight)
+		}
+		panic("invalid state")
+	}
+	if a == rowcol.Right {
+		if b == rowcol.Up {
+			return current.Add(PointCoordinateTopLeft)
+		}
+		if b == rowcol.Down {
+			return current.Add(PointCoordinateTopRight)
+		}
+		panic("invalid state")
+	}
+	if a == rowcol.Up {
+		if b == rowcol.Left {
+			return current.Add(PointCoordinateBottomLeft)
+		}
+		if b == rowcol.Right {
+			return current.Add(PointCoordinateTopLeft)
+		}
+		panic("invalid state")
+	}
+	if a == rowcol.Down {
+		if b == rowcol.Left {
+			return current.Add(PointCoordinateBottomRight)
+		}
+		if b == rowcol.Right {
+			return current.Add(PointCoordinateTopRight)
+		}
+		panic("invalid state")
+	}
+	panic(fmt.Errorf("invalid state, a=%v, b=%v", a, b))
+}
+
+func Direction(from rowcol.Pos, to rowcol.Pos) rowcol.Direction {
+	dir := to.Sub(from)
+	if dir.Row != 0 && dir.Col != 0 {
+		panic("invalid state, row or col must be zero")
+	}
+	dir.Row = clamp(dir.Row, -1, 1)
+	dir.Col = clamp(dir.Col, -1, 1)
+	return rowcol.Direction(dir)
+}
+
+func clamp(value, _min, _max int) int {
+	value = max(value, _min)
+	value = min(value, _max)
+	return value
+}
+
+func Area(ps []rowcol.Pos) int {
+	area := Shoelace(ps)
+	if area < 0 {
+		area = -area
+	}
+	return area / 2
+}
+
+// negative results: points are clockwise
+// positive results: points are counter clockwise
+func Shoelace(ps []rowcol.Pos) int {
+	var rv int
+	a := ps[len(ps)-1]
+	for _, b := range ps {
+		rv += a.Col * b.Row
+		rv -= b.Col * a.Row
+		a = b
+	}
+	return rv
+}
+
+func IsCounterClockwise(ps []rowcol.Pos) bool {
+	return Shoelace(ps) > 0
+}
+
+func PrintPolygon(polygon []rowcol.Pos) {
+	l := len(polygon)
+	for i := 1; i < l; i++ {
+		a, b := polygon[i-1], polygon[i]
+		fmt.Println(a, "-->", b)
+	}
+	fmt.Println("counter clockwise:", IsCounterClockwise(polygon))
 }
