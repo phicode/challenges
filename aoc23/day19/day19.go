@@ -322,7 +322,7 @@ type RangePart struct {
 func SolvePart2(wfs Workflows) {
 	var s Part2Solver
 	s.Workflows = wfs
-	start := &RangePart{
+	start := RangePart{
 		Values: [4]Range{
 			{1, 4001},
 			{1, 4001},
@@ -335,7 +335,7 @@ func SolvePart2(wfs Workflows) {
 	fmt.Println("Accepted:", s.Accepted)
 }
 
-func (s *Part2Solver) Solve(next *RangePart) {
+func (s *Part2Solver) Solve(next RangePart) {
 	current := s.Workflows[next.Target]
 	if current == nil {
 		panic(fmt.Sprintf("target not found: %q", next.Target))
@@ -352,7 +352,7 @@ func (s *Part2Solver) Solve(next *RangePart) {
 		s.Follow(a)
 
 		// b is the range where the condition did not apply, test the next condition
-		if b == nil {
+		if b.IsZero() {
 			return
 		}
 		if b.Target != next.Target {
@@ -364,8 +364,8 @@ func (s *Part2Solver) Solve(next *RangePart) {
 	s.Follow(next)
 }
 
-func (s *Part2Solver) Follow(a *RangePart) {
-	if a == nil {
+func (s *Part2Solver) Follow(a RangePart) {
+	if a.IsZero() {
 		return
 	}
 	if a.Target == Accept {
@@ -388,37 +388,38 @@ func (s *Part2Solver) Follow(a *RangePart) {
 }
 
 // returns the sub-range that applies to the condition and the remaining range
-func (r *RangePart) ApplyCondition(c Condition) (*RangePart, *RangePart) {
-	labelRange := r.Values[c.Index]
-	if c.AppliesFull(labelRange) {
-		return r.Clone().WithTarget(c.Target), nil // no split
+func (r RangePart) ApplyCondition(c Condition) (RangePart, RangePart) {
+	interval := r.Values[c.Index]
+	if c.AppliesFull(interval) {
+		return r.WithTarget(c.Target), RangePart{} // no split
 	}
-	if c.AppliesPartial(labelRange) {
-		rA, rB := c.Split(labelRange)
-		return r.Clone().Replace(c.Index, rA).WithTarget(c.Target), r.Clone().Replace(c.Index, rB)
+	if c.AppliesPartial(interval) {
+		iA, iB := c.Split(interval)
+		match := r.Replace(c.Index, iA).WithTarget(c.Target)
+		remaining := r.Replace(c.Index, iB)
+		return match, remaining
 	}
-	return nil, r
+	return RangePart{}, r
 }
 
-func (r *RangePart) Clone() *RangePart {
-	clone := &RangePart{}
-	*clone = *r
-	return clone
-}
-func (r *RangePart) WithTarget(target string) *RangePart {
+func (r RangePart) WithTarget(target string) RangePart {
 	r.Target = target
 	return r
 }
 
-func (r *RangePart) Replace(index int, v Range) *RangePart {
+func (r RangePart) Replace(index int, v Range) RangePart {
 	r.Values[index] = v
 	return r
 }
 
-func (r *RangePart) Value() int {
+func (r RangePart) Value() int {
 	product := 1
 	for _, r := range r.Values {
 		product *= r.Value()
 	}
 	return product
+}
+
+func (r RangePart) IsZero() bool {
+	return r.Target == ""
 }
