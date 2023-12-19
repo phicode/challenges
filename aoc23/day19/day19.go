@@ -11,14 +11,14 @@ import (
 	"git.bind.ch/phil/challenges/lib"
 )
 
-var VERBOSE = 2
+var VERBOSE = 1
 
 func main() {
 	ProcessPart1("aoc23/day19/example.txt")
 	ProcessPart1("aoc23/day19/input.txt")
 
-	//ProcessPart2("aoc23/day19/example.txt")
-	//ProcessPart2("aoc23/day19/input.txt")
+	ProcessPart2("aoc23/day19/example.txt")
+	ProcessPart2("aoc23/day19/input.txt")
 }
 
 func ProcessPart1(name string) {
@@ -42,7 +42,8 @@ func ProcessPart1(name string) {
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
-	_ = lines
+	wfs, _ := ParseInput(lines)
+	SolvePart2(wfs)
 
 	fmt.Println()
 }
@@ -254,4 +255,185 @@ func (w *Workflow) ApplyConditions(part Part) string {
 		}
 	}
 	return w.Default
+}
+
+////////////////////////////////////////////////////////////
+// Part 2
+
+type Range struct {
+	Start, End int // start inclusive, end exclusive
+}
+
+// Split Range r, so that x is Part of the lower Range
+func (r Range) Split(x int) (Range, Range) {
+	if x < r.Start || x >= r.End-1 {
+		panic("invalid state")
+	}
+	return Range{r.Start, x + 1}, Range{x + 1, r.End}
+}
+
+func (r Range) Value() int {
+	return r.End - r.Start
+}
+
+func (c Condition) AppliesFull(r Range) bool {
+	return c.Applies(r.Start) && c.Applies(r.End-1)
+}
+func (c Condition) AppliesPartial(r Range) bool {
+	a := c.Applies(r.Start)
+	b := c.Applies(r.End - 1)
+	return a != b
+}
+
+// Split returns the Range which adheres to the condition and the range that does not apply the condition
+func (c Condition) Split(r Range) (Range, Range) {
+	switch c.Op {
+	case '>':
+		// b contains the values that apply (value > )
+		// the value itself is part of the not applying range
+		a, b := r.Split(c.Value)
+		return b, a
+	case '<':
+		// a contains the values that apply (value > )
+		// the value itself is part of the not applying range
+		a, b := r.Split(c.Value - 1)
+		return a, b
+	default:
+		panic("invalid state")
+	}
+}
+
+type Part2Solver struct {
+	//remaining []RangePart
+	Workflows Workflows
+	Accepted  int
+	Rejected  int
+}
+
+type RangePart struct {
+	x, m, a, s Range
+	Target     string
+}
+
+func SolvePart2(wfs Workflows) {
+	var s Part2Solver
+	s.Workflows = wfs
+	start := &RangePart{
+		x:      Range{1, 4001},
+		m:      Range{1, 4001},
+		a:      Range{1, 4001},
+		s:      Range{1, 4001},
+		Target: "in",
+	}
+	s.Solve(start)
+	fmt.Println("Accepted:", s.Accepted)
+}
+
+func (s *Part2Solver) Solve(next *RangePart) {
+	current := s.Workflows[next.Target]
+	if current == nil {
+		panic(fmt.Sprintf("target not found: %q", next.Target))
+	}
+
+	for _, cond := range current.Conditions {
+		a, b := next.ApplyCondition(cond)
+		if VERBOSE >= 2 {
+			fmt.Println("a:", a)
+			fmt.Println("b:", b)
+		}
+
+		// a is the range that has transitioned to the next workflow
+		s.Follow(a)
+
+		// b is the range where the condition did not apply, test the next condition
+		if b == nil {
+			return
+		}
+		if b.Target != next.Target {
+			panic("invalid state")
+		}
+		next = b
+	}
+	next = next.WithTarget(current.Default)
+	s.Follow(next)
+}
+
+func (s *Part2Solver) Follow(a *RangePart) {
+	if a == nil {
+		return
+	}
+	if a.Target == Accept {
+		v := a.Value()
+		s.Accepted += v
+		if VERBOSE >= 2 {
+			fmt.Println("ACCEPTING RANGE", v, "total:", s.Accepted)
+		}
+		return
+	}
+	if a.Target == Reject {
+		v := a.Value()
+		s.Rejected += v
+		if VERBOSE >= 2 {
+			fmt.Println("REJECTING RANGE", v, "total:", s.Rejected)
+		}
+		return
+	}
+	s.Solve(a)
+}
+
+// returns the sub-range that applies to the condition and the remaining range
+func (r *RangePart) ApplyCondition(c Condition) (*RangePart, *RangePart) {
+	labelRange := r.Get(c.Label)
+	if c.AppliesFull(labelRange) {
+		return r.WithTarget(c.Target), nil // no split
+	}
+	if c.AppliesPartial(labelRange) {
+		rA, rB := c.Split(labelRange)
+		return r.Replace(c.Label, rA).WithTarget(c.Target), r.Replace(c.Label, rB)
+	}
+	return nil, r
+}
+
+func (r *RangePart) Get(label string) Range {
+	switch label {
+	case "x":
+		return r.x
+	case "m":
+		return r.m
+	case "a":
+		return r.a
+	case "s":
+		return r.s
+	default:
+		panic("invalid label")
+	}
+}
+
+func (r *RangePart) WithTarget(target string) *RangePart {
+	clone := &RangePart{}
+	*clone = *r
+	clone.Target = target
+	return clone
+}
+
+func (r *RangePart) Replace(label string, v Range) *RangePart {
+	clone := &RangePart{}
+	*clone = *r
+	switch label {
+	case "x":
+		clone.x = v
+	case "m":
+		clone.m = v
+	case "a":
+		clone.a = v
+	case "s":
+		clone.s = v
+	default:
+		panic("invalid label")
+	}
+	return clone
+}
+
+func (r *RangePart) Value() int {
+	return r.x.Value() * r.m.Value() * r.a.Value() * r.s.Value()
 }
