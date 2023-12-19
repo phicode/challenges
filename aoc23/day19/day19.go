@@ -14,11 +14,11 @@ import (
 var VERBOSE = 1
 
 func main() {
-	ProcessPart1("aoc23/day19/example.txt")
-	ProcessPart1("aoc23/day19/input.txt")
+	ProcessPart1("aoc23/day19/example.txt") // 19114
+	ProcessPart1("aoc23/day19/input.txt")   // 319295
 
-	ProcessPart2("aoc23/day19/example.txt")
-	ProcessPart2("aoc23/day19/input.txt")
+	ProcessPart2("aoc23/day19/example.txt") // 167409079868000
+	ProcessPart2("aoc23/day19/input.txt")   // 110807725108076
 }
 
 func ProcessPart1(name string) {
@@ -43,7 +43,9 @@ func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
 	wfs, _ := ParseInput(lines)
+	//t := time.Now()
 	SolvePart2(wfs)
+	//fmt.Println(time.Now().Sub(t))
 
 	fmt.Println()
 }
@@ -64,14 +66,14 @@ type Workflow struct {
 }
 
 type Condition struct {
-	Label  string
+	Index  int
 	Op     rune
 	Value  int
 	Target string // target workflow, Accept or Reject
 }
 
 func (c Condition) String() string {
-	return fmt.Sprintf("%s%c%d:%s", c.Label, c.Op, c.Value, c.Target)
+	return fmt.Sprintf("%s%c%d:%s", IndexToLabel[c.Index], c.Op, c.Value, c.Target)
 }
 
 func (c Condition) Applies(value int) bool {
@@ -85,32 +87,33 @@ func (c Condition) Applies(value int) bool {
 	}
 }
 
-type Pair struct {
-	Label string
-	Value int
+var LabelToIndex = map[string]int{
+	"x": 0,
+	"m": 1,
+	"a": 2,
+	"s": 3,
 }
-type Part []Pair
+var IndexToLabel = map[int]string{
+	0: "x",
+	1: "m",
+	2: "a",
+	3: "s",
+}
 
-func (p Part) Get(label string) int {
-	for _, pair := range p {
-		if pair.Label == label {
-			return pair.Value
-		}
-	}
-	panic(fmt.Errorf("label %q not found in part %s", label, p))
-}
+// values: x, m, a, s
+type Part [4]int
+
 func (p Part) String() string {
 	var b bytes.Buffer
-	b.WriteRune('{')
-	for i, pair := range p {
-		if i > 0 {
-			b.WriteRune(',')
-		}
-		b.WriteString(pair.Label)
-		b.WriteRune('=')
-		b.WriteString(strconv.Itoa(pair.Value))
-	}
-	b.WriteRune('}')
+	b.WriteString("{x=")
+	b.WriteString(strconv.Itoa(p[0]))
+	b.WriteString(",m=")
+	b.WriteString(strconv.Itoa(p[1]))
+	b.WriteString(",a=")
+	b.WriteString(strconv.Itoa(p[2]))
+	b.WriteString(",s=")
+	b.WriteString(strconv.Itoa(p[3]))
+	b.WriteString("}")
 	return b.String()
 }
 
@@ -140,18 +143,19 @@ func ParsePart(line string) Part {
 
 	var p Part
 	for _, pair := range pairs {
-		p = append(p, ParsePair(pair))
+		i, v := ParsePair(pair)
+		p[i] = v
 	}
 	return p
 }
 
-func ParsePair(pair string) Pair {
+func ParsePair(pair string) (int, int) {
 	label, valueS := Split2(pair, '=')
 	value, err := strconv.Atoi(valueS)
 	if err != nil {
 		panic(err)
 	}
-	return Pair{Label: label, Value: value}
+	return LabelToIndex[label], value
 }
 
 func ParseWorkflow(l string) Workflow {
@@ -190,7 +194,7 @@ func ParseCondition(cond string) Condition {
 		panic(err)
 	}
 	return Condition{
-		Label:  label,
+		Index:  LabelToIndex[label],
 		Op:     op,
 		Value:  value,
 		Target: target,
@@ -218,19 +222,19 @@ func Split2(s string, x rune) (string, string) {
 // Part 1
 
 func SolvePart1(wfs Workflows, parts []Part) int {
-	var x, m, a, s int
+	var sum int
 	for _, part := range parts {
 		if AcceptPart(wfs, part) {
 			if VERBOSE >= 2 {
 				fmt.Println("accepted part:", part)
 			}
-			x += part.Get("x")
-			m += part.Get("m")
-			a += part.Get("a")
-			s += part.Get("s")
+			sum += part[0]
+			sum += part[1]
+			sum += part[2]
+			sum += part[3]
 		}
 	}
-	return x + m + a + s
+	return sum
 }
 
 func AcceptPart(wfs Workflows, part Part) bool {
@@ -249,7 +253,7 @@ func AcceptPart(wfs Workflows, part Part) bool {
 
 func (w *Workflow) ApplyConditions(part Part) string {
 	for _, cond := range w.Conditions {
-		value := part.Get(cond.Label)
+		value := part[cond.Index]
 		if cond.Applies(value) {
 			return cond.Target
 		}
@@ -311,18 +315,20 @@ type Part2Solver struct {
 }
 
 type RangePart struct {
-	x, m, a, s Range
-	Target     string
+	Values [4]Range
+	Target string
 }
 
 func SolvePart2(wfs Workflows) {
 	var s Part2Solver
 	s.Workflows = wfs
 	start := &RangePart{
-		x:      Range{1, 4001},
-		m:      Range{1, 4001},
-		a:      Range{1, 4001},
-		s:      Range{1, 4001},
+		Values: [4]Range{
+			{1, 4001},
+			{1, 4001},
+			{1, 4001},
+			{1, 4001},
+		},
 		Target: "in",
 	}
 	s.Solve(start)
@@ -383,57 +389,36 @@ func (s *Part2Solver) Follow(a *RangePart) {
 
 // returns the sub-range that applies to the condition and the remaining range
 func (r *RangePart) ApplyCondition(c Condition) (*RangePart, *RangePart) {
-	labelRange := r.Get(c.Label)
+	labelRange := r.Values[c.Index]
 	if c.AppliesFull(labelRange) {
-		return r.WithTarget(c.Target), nil // no split
+		return r.Clone().WithTarget(c.Target), nil // no split
 	}
 	if c.AppliesPartial(labelRange) {
 		rA, rB := c.Split(labelRange)
-		return r.Replace(c.Label, rA).WithTarget(c.Target), r.Replace(c.Label, rB)
+		return r.Clone().Replace(c.Index, rA).WithTarget(c.Target), r.Clone().Replace(c.Index, rB)
 	}
 	return nil, r
 }
 
-func (r *RangePart) Get(label string) Range {
-	switch label {
-	case "x":
-		return r.x
-	case "m":
-		return r.m
-	case "a":
-		return r.a
-	case "s":
-		return r.s
-	default:
-		panic("invalid label")
-	}
+func (r *RangePart) Clone() *RangePart {
+	clone := &RangePart{}
+	*clone = *r
+	return clone
 }
-
 func (r *RangePart) WithTarget(target string) *RangePart {
-	clone := &RangePart{}
-	*clone = *r
-	clone.Target = target
-	return clone
+	r.Target = target
+	return r
 }
 
-func (r *RangePart) Replace(label string, v Range) *RangePart {
-	clone := &RangePart{}
-	*clone = *r
-	switch label {
-	case "x":
-		clone.x = v
-	case "m":
-		clone.m = v
-	case "a":
-		clone.a = v
-	case "s":
-		clone.s = v
-	default:
-		panic("invalid label")
-	}
-	return clone
+func (r *RangePart) Replace(index int, v Range) *RangePart {
+	r.Values[index] = v
+	return r
 }
 
 func (r *RangePart) Value() int {
-	return r.x.Value() * r.m.Value() * r.a.Value() * r.s.Value()
+	product := 1
+	for _, r := range r.Values {
+		product *= r.Value()
+	}
+	return product
 }
