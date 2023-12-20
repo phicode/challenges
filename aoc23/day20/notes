@@ -1,0 +1,21 @@
+Flip Flop: %
+============
+  Starts: off
+  On "low pulse":
+    - Flip
+    - Send "high pulse" if new state is on
+    - Send "low pulse" if new state is off
+
+Conjunction: &
+==============
+  Remember all inputs
+  Start: "low pulse"
+  On new pulse:
+    - Update memory
+    - if all inputs are "high pulse": send "low pulse"
+    - otherwise: send "high pulse"
+
+General
+- Pulses are "breath first"
+
+An untyped output is a destination, which is never a source.
