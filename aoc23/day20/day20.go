@@ -22,7 +22,7 @@ func main() {
 	ProcessPart1("aoc23/day20/example2.txt", 1000) // 11687500
 	ProcessPart1("aoc23/day20/input.txt", 1000)    // 807069600
 
-	ProcessPart2("aoc23/day20/input.txt")
+	ProcessPart2("aoc23/day20/input.txt") // 221453937522197
 }
 
 func ProcessPart1(name string, pulses int) {
