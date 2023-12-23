@@ -21,6 +21,16 @@ func (p Pos) Abs() Pos              { return Pos{Row: abs(p.Row), Col: abs(p.Col
 // Position in Col, Row (analog to X, Y)
 func (p Pos) String() string { return fmt.Sprintf("(%d,%d)", p.Col, p.Row) }
 
+func (p Pos) Less(o Pos) bool {
+	if p.Row < o.Row {
+		return true
+	}
+	if p.Row == o.Row {
+		return p.Col < o.Col
+	}
+	return false
+}
+
 func abs(x int) int {
 	if x < 0 {
 		return -x
