@@ -13,7 +13,7 @@ var VERBOSE = 1
 
 func main() {
 	ProcessPart1("aoc22/day19/example.txt")
-	//ProcessPart1("aoc22/day19/input.txt")
+	ProcessPart1("aoc22/day19/input.txt")
 
 	//ProcessPart2("aoc22/day19/example.txt")
 	//ProcessPart2("aoc22/day19/input.txt")
@@ -28,7 +28,7 @@ func ProcessPart1(name string) {
 		geodes := SolvePart1(bp)
 		quality := geodes * bp.Num
 		sum += quality
-		fmt.Println("Blueprint", bp.Num, "quality:", quality)
+		fmt.Println("Blueprint", bp.Num, ", geodes", geodes, ", quality:", quality)
 		fmt.Println("combinations:", combinations)
 	}
 	fmt.Println("Sum:", sum)
@@ -42,12 +42,6 @@ func ProcessPart2(name string) {
 	_ = lines
 
 	fmt.Println()
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -86,6 +80,30 @@ func (r *Resource) CanBuild(recipe Recipe) bool {
 		r.Geode >= recipe.Cost.Geode
 }
 
+func (r *Resource) MinutesUntil(s State, recipe Recipe) (bool, int) {
+	oreOk, tOre := MinuteUntil(recipe.Cost.Ore, s.Resources.Ore, s.Robots.Ore)
+	clayOk, tClay := MinuteUntil(recipe.Cost.Clay, s.Resources.Clay, s.Robots.Clay)
+	obsOk, tObs := MinuteUntil(recipe.Cost.Obsidian, s.Resources.Obsidian, s.Robots.Obsidian)
+	geoOk, tGeo := MinuteUntil(recipe.Cost.Geode, s.Resources.Geode, s.Robots.Geode)
+
+	return oreOk && clayOk && obsOk && geoOk, max(tOre, tClay, tObs, tGeo)
+}
+
+func MinuteUntil(cost, current, income int) (bool, int) {
+	if income == 0 && cost > current {
+		return false, 0
+	}
+	if cost <= current {
+		return true, 0
+	}
+	required := cost - current
+	t := required / income
+	if t*income < required {
+		t++
+	}
+	return true, t
+}
+
 func (r *Resource) Sub(b Resource) {
 	r.Ore -= b.Ore
 	r.Clay -= b.Clay
@@ -111,7 +129,8 @@ func ParseBlueprints(lines []string) []*Blueprint {
 		if strings.HasPrefix(l, "Blueprint") {
 			current = &Blueprint{}
 			// add the "empty" recipe
-			current.Recipes = append(current.Recipes, Recipe{})
+			//current.Recipes = append(current.Recipes, Recipe{})
+
 			if n, err := fmt.Sscanf(l, "Blueprint %d:", &current.Num); n != 1 || err != nil {
 				panic(fmt.Errorf("invalid input: %q", l))
 			}
@@ -161,16 +180,29 @@ func (s State) RunMinute(bp *Blueprint, mem Memory, minute, end int) int {
 	key := Key{State: s, Minute: minute}
 	if memoization {
 		if v, found := mem[key]; found {
+			panic("asdf")
 			return v
 		}
 	}
 	// production phase
 	var best int
 	for _, recipe := range bp.Recipes {
-		if s.Resources.CanBuild(recipe) {
+		canbuild, minutesUntil := s.Resources.MinutesUntil(s, recipe)
+		if !canbuild {
+			continue
+		}
+		if minutesUntil == 0 {
 			geodes := s.RunMinuteProduction(bp, mem, minute, end, recipe)
 			best = max(best, geodes)
+		} else {
+			if minute+minutesUntil > end {
+				continue
+			}
+			state := s.SkipMinutes(minutesUntil)
+			geodes := state.RunMinuteProduction(bp, mem, minute+minutesUntil, end, recipe)
+			best = max(best, geodes)
 		}
+
 	}
 	if memoization {
 		mem[key] = best
@@ -190,6 +222,13 @@ func (s State) RunMinuteProduction(bp *Blueprint, mem Memory, minute int, end in
 		return s.Resources.Geode
 	}
 	return s.RunMinute(bp, mem, minute+1, end)
+}
+
+func (s State) SkipMinutes(n int) State {
+	for i := 0; i < n; i++ {
+		s.Resources.Add(s.Robots)
+	}
+	return s
 }
 
 func SolvePart1(bp *Blueprint) int {
