@@ -1,0 +1,37 @@
+need to follow up on: https://www.reddit.com/r/adventofcode/comments/18pnycy/comment/kepu26z/?utm_source=share&utm_medium=web2x&context=3
+
+
+solving for 3 hailstones: A:Ray, B:Ray, C:Ray
+Unknown:
+  R:Ray  - Start and Vector of rock
+  tA:int - intercept time of Rock with A
+  tB:int - intercept time of Rock with B
+  tC:int - intercept time of Rock with C
+
+
+F1:  R.P + R.V*tA = A.P + A.V*tA
+
+     R.P          = A.P + A.V*tA - R.V*tA
+
+F2:  R.P + R.V*tB = B.P + B.V*tB
+
+     A.P + A.V*tA - R.V*tA + R.V*tB = B.P + B.V*tB
+     A.P + A.V*tA + R.V(tB-tA)      = B.P + B.V*tB
+                    R.V(tB-tA)      = B.P + B.V*tB - A.P - A.V*tA
+                    R.V             = (B.P + B.V*tB - A.P - A.V*tA) / (tB-tA)
+
+F3:  R.P + R.V*tC = C.P + C.V*tC
+
+F3 with R.P replaced
+     A.P + A.V*tA - R.V*tA + R.V*tC = C.P + C.V*tC
+     A.P + A.V*tA - R.V*(tA + tC)   = C.P + C.V*tC
+
+F3 with R.V replaced
+     A.P + A.V*tA - (B.P + B.V*tB - A.P - A.V*tA) / (tB-tA)*(tA + tC)   = C.P + C.V*tC
+
+-----------
+
+R.P + R.V*tA = A.P + A.V*tA
+R.P - A.P    = A.V*tA - R.V*tA
+R.P - A.P    = tA (A.V - R.V)
+

@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"git.bind.ch/phil/challenges/lib"
 )
@@ -34,17 +35,20 @@ func Process(name string, extend bool) {
 	lines := lib.ReadLines(name)
 	sequences := ParseSequences(lines)
 	var sum int
+	t0 := time.Now()
 	for _, s := range sequences {
 		if extend {
 			s = ExtendSequenceToPart2(s)
 		}
 		c := SolveCombinations(s)
+
 		sum += c
 		if VERBOSE >= 1 {
 			fmt.Println(s)
 			fmt.Println("combinations:", c)
 		}
 	}
+	fmt.Println("T:", time.Since(t0))
 	fmt.Println("Sum:", sum)
 	fmt.Println()
 }
