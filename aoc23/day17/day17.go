@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"slices"
+	"time"
 
 	"git.bind.ch/phil/challenges/lib"
 	"git.bind.ch/phil/challenges/lib/rowcol"
@@ -35,8 +36,10 @@ func ProcessPart2(name string) {
 func Process(name string, minMove, maxMove int) {
 	lines := lib.ReadLines(name)
 	g := ParseInput(lines)
+	t0 := time.Now()
 	nodes := BuildNodes(g, minMove, maxMove)
 	Follow(g, nodes)
+	fmt.Println(time.Since(t0))
 	fmt.Println()
 }
 
