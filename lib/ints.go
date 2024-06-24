@@ -2,6 +2,7 @@ package lib
 
 import (
 	"strconv"
+	"strings"
 )
 
 func ToInt(s string) int {
@@ -13,5 +14,5 @@ func ToInt(s string) int {
 }
 
 func ExtractInts(s string) []int {
-	return Map(SplitStringTokens(s), ToInt)
+	return Map(strings.Fields(s), ToInt)
 }
