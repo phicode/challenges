@@ -8,12 +8,10 @@ for d in aoc22/day* ; do
   else
     echo "################################################################################"
     echo "RUNNING: ${d}"
-    go run git.bind.ch/phil/challenges/${d}
-    if [[ $? -ne 0 ]]; then
+    if ! go run "git.bind.ch/phil/challenges/${d}" ; then
       echo "ABNORMAL TERMINATION"
       exit 1
     fi
     echo "################################################################################"
   fi
 done
-

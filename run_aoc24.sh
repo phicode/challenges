@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-go test aoc23/...
+go test aoc24/...
 
-for d in aoc23/day* ; do
+for d in aoc24/day* ; do
   echo "################################################################################"
   echo "RUNNING: ${d}"
   if ! go run "git.bind.ch/phil/challenges/${d}" ; then

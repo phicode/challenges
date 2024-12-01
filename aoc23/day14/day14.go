@@ -11,7 +11,7 @@ import (
 	"git.bind.ch/phil/challenges/lib/rowcol"
 )
 
-var VERBOSE = 1
+var VERBOSE = 0
 
 func main() {
 	ProcessPart1("aoc23/day14/example.txt")
