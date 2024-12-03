@@ -32,7 +32,7 @@ func ProcessPart1(name string) {
 
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
-	input := ParseInputPart2(name)
+	input := ParseInput(name)
 	total := SolvePart2(input)
 	fmt.Println("Total:", total)
 }
@@ -58,53 +58,6 @@ type Mul struct {
 type DoDont struct {
 	Start int
 	Do    bool
-}
-
-func ParseInput(name string) Input {
-	lines := lib.ReadLines(name)
-	var rv Input
-	for _, line := range lines {
-		for len(line) > 0 {
-			x, y, rem, ok := parseMul(line)
-			if ok {
-				line = rem
-				rv.Muls = append(rv.Muls, Mul{x, y, 0})
-			} else {
-				line = line[1:]
-			}
-		}
-	}
-	return rv
-}
-
-func parseMul(s string) (x, y int, rem string, ok bool) {
-	if !strings.HasPrefix(s, "mul(") {
-		return 0, 0, "", false
-	}
-	end := strings.IndexRune(s, ')')
-	if end == -1 || end-4 < 3 {
-		return 0, 0, "", false
-	}
-	between := s[4:end]
-	parts := strings.Split(between, ",")
-	if len(parts) != 2 {
-		return 0, 0, "", false
-	}
-	x, err1 := strconv.Atoi(parts[0])
-	y, err2 := strconv.Atoi(parts[1])
-	if err1 == nil && err2 == nil {
-		return x, y, s[end+1:], true
-	}
-	return 0, 0, "", false
-}
-
-func SolvePart1(input Input) int {
-	total := 0
-	for _, m := range input.Muls {
-		//fmt.Println(m.X, "*", m.Y)
-		total += m.X * m.Y
-	}
-	return total
 }
 
 ////////////////////////////////////////////////////////////
@@ -152,7 +105,7 @@ func testmul(s string) (x, y, next int, ok bool) {
 	return 0, 0, 0, false
 }
 
-func ParseInputPart2(name string) Input {
+func ParseInput(name string) Input {
 	lines := lib.ReadLines(name)
 	line := lib.ConcatStrings(lines)
 	var rv Input
@@ -176,6 +129,17 @@ func ParseInputPart2(name string) Input {
 	}
 	sort.Slice(rv.DoDonts, func(i, j int) bool { return rv.DoDonts[i].Start < rv.DoDonts[j].Start })
 	return rv
+}
+
+////////////////////////////////////////////////////////////
+
+func SolvePart1(input Input) int {
+	total := 0
+	for _, m := range input.Muls {
+		//fmt.Println(m.X, "*", m.Y)
+		total += m.X * m.Y
+	}
+	return total
 }
 
 func SolvePart2(input Input) int {
