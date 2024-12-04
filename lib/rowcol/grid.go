@@ -6,8 +6,16 @@ type Grid[T any] struct {
 	Data [][]T
 }
 
-func (g *Grid[T]) Rows() int    { return len(g.Data) }
-func (g *Grid[T]) Columns() int { return len(g.Data[0]) }
+//func (g *Grid[byte]) Print() {
+//	for _, row := range g.Data {
+//		fmt.Println(string(row))
+//	}
+//	fmt.Println()
+//}
+
+func (g *Grid[T]) Rows() int        { return len(g.Data) }
+func (g *Grid[T]) Columns() int     { return len(g.Data[0]) }
+func (g *Grid[T]) Size() (int, int) { return g.Rows(), g.Columns() }
 
 func (g *Grid[T]) SetRow(i int, data []T) {
 	if len(data) != g.Columns() {

@@ -56,11 +56,15 @@ func (d Direction) String() string {
 }
 
 var (
-	Left  = Direction{Row: 0, Col: -1}
-	Right = Direction{Row: 0, Col: +1}
-	Up    = Direction{Row: -1, Col: 0}
-	Down  = Direction{Row: +1, Col: 0}
-	Stand = Direction{Row: 0, Col: 0}
+	Left      = Direction{Row: 0, Col: -1}
+	Right     = Direction{Row: 0, Col: +1}
+	Up        = Direction{Row: -1, Col: 0}
+	Down      = Direction{Row: +1, Col: 0}
+	Stand     = Direction{Row: 0, Col: 0}
+	UpLeft    = Direction{Row: -1, Col: -1}
+	UpRight   = Direction{Row: -1, Col: +1}
+	DownLeft  = Direction{Row: +1, Col: -1}
+	DownRight = Direction{Row: +1, Col: +1}
 )
 
 func (d Direction) Right() Direction { return Direction{Row: d.Col, Col: -d.Row} }
@@ -73,4 +77,5 @@ func (d Direction) MulS(s int) Pos {
 	return Pos{Row: d.Row * s, Col: d.Col * s}
 }
 
+// TODO: rename to something reflecting horizontal and vertial
 var Directions = []Direction{Left, Right, Up, Down}
