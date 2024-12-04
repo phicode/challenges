@@ -13,15 +13,14 @@ const (
 	MAX_DIFF = 3
 )
 
-// TODO: timing boilerplate
 var VERBOSE = 1
 
 func main() {
-	ProcessPart1("aoc24/day02/example.txt")
-	ProcessPart1("aoc24/day02/input.txt")
+	lib.Timed("Part 1", ProcessPart1, "aoc24/day02/example.txt")
+	lib.Timed("Part 1", ProcessPart1, "aoc24/day02/input.txt")
 
-	ProcessPart2("aoc24/day02/example.txt")
-	ProcessPart2("aoc24/day02/input.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day02/example.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day02/input.txt")
 }
 
 func ProcessPart1(name string) {

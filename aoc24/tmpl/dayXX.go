@@ -8,15 +8,14 @@ import (
 	"git.bind.ch/phil/challenges/lib"
 )
 
-// TODO: timing boilerplate
 var VERBOSE = 1
 
 func main() {
-	ProcessPart1("aoc24/dayXX/example.txt")
-	ProcessPart1("aoc24/dayXX/input.txt")
+	lib.Timed("Part 1", ProcessPart1, "aoc24/dayXX/example.txt")
+	lib.Timed("Part 1", ProcessPart1, "aoc24/dayXX/input.txt")
 
-	ProcessPart2("aoc24/dayXX/example.txt")
-	ProcessPart2("aoc24/dayXX/input.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/dayXX/example.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/dayXX/input.txt")
 }
 
 func ProcessPart1(name string) {

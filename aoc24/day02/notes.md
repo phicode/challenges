@@ -3,12 +3,19 @@
 ```text
 Part 1 input: aoc24/day02/example.txt
 Safe: 2
+Part 1: 114.257µs
+
 Part 1 input: aoc24/day02/input.txt
 Safe: 202
+Part 1: 246.897µs
+
 Part 2 input: aoc24/day02/example.txt
 Safe: 4
+Part 2: 14.868µs
+
 Part 2 input: aoc24/day02/input.txt
 Safe: 271
+Part 2: 351.256µs
 ```
 
 # Notes
