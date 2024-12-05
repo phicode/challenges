@@ -3,13 +3,13 @@ package lib
 import (
 	"strconv"
 	"strings"
+
+	"git.bind.ch/phil/challenges/lib/assert"
 )
 
 func ToInt(s string) int {
 	n, err := strconv.Atoi(s)
-	if err != nil {
-		panic(err)
-	}
+	assert.NoErr(err)
 	return n
 }
 

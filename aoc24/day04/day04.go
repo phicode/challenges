@@ -100,15 +100,6 @@ func (g *Grid) IsValue(value byte, p rowcol.Pos) bool {
 		g.Get(p.Row, p.Col) == value
 }
 
-func (g *Grid) IsXmasP2(p rowcol.Pos, d rowcol.Direction) bool {
-	for i, val := range xmas {
-		if !g.IsValue(val, p.Add(d.MulS(i))) {
-			return false
-		}
-	}
-	return true
-}
-
 func (g *Grid) IsMasCenter(p rowcol.Pos) bool {
 	// Coordinates
 	// a.b

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"git.bind.ch/phil/challenges/lib"
+	"git.bind.ch/phil/challenges/lib/assert"
 )
 
 var VERBOSE = 2
@@ -183,7 +184,7 @@ func (f *Foo) Run() {
 
 	fmt.Printf("group a (%d): %v\n", len(namesA), namesA)
 	fmt.Printf("group b (%d): %v\n", len(namesB), namesB)
-	lib.Assert(len(namesA)+len(namesB) == len(f.G.Vs))
+	assert.True(len(namesA)+len(namesB) == len(f.G.Vs))
 
 	fmt.Println("quad nodes:", lib.MapKeys(f.QuadNodes))
 
@@ -542,7 +543,7 @@ func KernighanLinUnevenVertices(as VertexSet, bs VertexSet) {
 	// Test every node in the bigger set if it is better places in the "smaller" group
 
 	// b is the bigger set
-	lib.Assert(len(as) < len(bs))
+	assert.True(len(as) < len(bs))
 
 	var maxd int = math.MinInt
 	var maxb *Vertex
@@ -631,7 +632,7 @@ func findMostUnevenVertex(as, bs VertexSet) *Vertex {
 func ExchangeInPlace(as VertexSet, bs VertexSet, a string, b string) {
 	av := as[a]
 	bv := bs[b]
-	lib.Assert(av != nil && bv != nil)
+	assert.True(av != nil && bv != nil)
 	delete(as, a)
 	delete(bs, b)
 	as[b] = bv
@@ -673,8 +674,8 @@ func FindMaxG(a VertexSet, b VertexSet, costs *Costs) (string, string, int) {
 			}
 		}
 	}
-	lib.Assert(maxa != "")
-	lib.Assert(maxb != "")
+	assert.True(maxa != "")
+	assert.True(maxb != "")
 	return maxa, maxb, maxg
 }
 
