@@ -29,10 +29,9 @@ func ProcessPart1(name string) {
 
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
-	lines := lib.ReadLines(name)
-	_ = lines
-
-	fmt.Println()
+	input := ParseInput(name)
+	result := SolvePart2(input)
+	fmt.Println("Result:", result)
 }
 
 func log(v int, msg string) {
@@ -138,4 +137,36 @@ func (in Input) FindRule(a int, b int) (Rule, bool) {
 
 func (r Rule) IsInvalid(a, b int) bool {
 	return r.A != a || r.B != b
+}
+
+////////////////////////////////////////////////////////////
+
+func SolvePart2(input Input) int {
+	total := 0
+	for _, man := range input.Manuals {
+		valid := input.IsValid(man)
+		if !valid {
+			input.Reorder(man)
+			total += man.Pages[len(man.Pages)/2]
+		}
+	}
+	return total
+}
+
+func (in Input) Reorder(m Manual) {
+	// fmt.Println("Invalid:", m)
+	// naive approach: find violating rules and swap the two offending places
+	p := m.Pages
+	l := len(p)
+	for i := 0; i < l; i++ {
+		for j := i + 1; j < l; j++ {
+			a, b := p[i], p[j]
+			r, found := in.FindRule(a, b)
+			if found && r.IsInvalid(a, b) {
+				//fmt.Println("  swapping:", a, b, "@", i, j)
+				p[i], p[j] = p[j], p[i]
+			}
+		}
+	}
+	//fmt.Println("  result:", m)
 }
