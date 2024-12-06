@@ -6,6 +6,12 @@ func True(c bool) {
 	}
 }
 
+func False(c bool) {
+	if c {
+		panic("assert failed")
+	}
+}
+
 func NoErr(err error) {
 	if err != nil {
 		panic(err)

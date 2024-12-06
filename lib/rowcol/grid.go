@@ -25,10 +25,13 @@ func (g *Grid[T]) SetRow(i int, data []T) {
 }
 
 func (g *Grid[T]) Get(row, col int) T    { return g.Data[row][col] }
+func (g *Grid[T]) GetPos(p Pos) T        { return g.Data[p.Row][p.Col] }
 func (g *Grid[T]) Set(row, col int, v T) { g.Data[row][col] = v }
+func (g *Grid[T]) SetPos(p Pos, v T)     { g.Data[p.Row][p.Col] = v }
 func (g *Grid[T]) IsValidPosition(row, col int) bool {
 	return row >= 0 && col >= 0 && row < g.Rows() && col < g.Columns()
 }
+func (g *Grid[T]) IsValidPos(p Pos) bool { return g.IsValidPosition(p.Row, p.Col) }
 
 func (g *Grid[T]) Copy() Grid[T] {
 	c := NewGrid[T](g.Rows(), g.Columns())
@@ -67,6 +70,7 @@ func (g *Grid[T]) Visit(fn func(T)) {
 		}
 	}
 }
+
 func (g *Grid[T]) Reduce(acc T, fn func(T, T) T) T {
 	rows, cols := g.Rows(), g.Columns()
 	for r := 0; r < rows; r++ {
@@ -75,6 +79,27 @@ func (g *Grid[T]) Reduce(acc T, fn func(T, T) T) T {
 		}
 	}
 	return acc
+}
+func Reduce[T any, E any](g *Grid[T], acc E, fn func(E, T) E) E {
+	rows, cols := g.Rows(), g.Columns()
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			acc = fn(acc, g.Data[r][c])
+		}
+	}
+	return acc
+}
+
+func (g *Grid[T]) Find(eq func(T) bool) (Pos, bool) {
+	rows, cols := g.Size()
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			if eq(g.Data[r][c]) {
+				return Pos{r, c}, true
+			}
+		}
+	}
+	return Pos{}, false
 }
 
 func NewByteGridFromStrings(xs []string) Grid[byte] {
