@@ -1,0 +1,2 @@
+- Generic rowcol.Grid#Print
+- rowcol.Direction and rowcol.Pos type review

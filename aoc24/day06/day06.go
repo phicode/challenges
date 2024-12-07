@@ -46,6 +46,13 @@ type Grid struct {
 	rowcol.Grid[byte]
 }
 
+func (g *Grid) Print() {
+	for _, row := range g.Data {
+		fmt.Println(string(row))
+	}
+	fmt.Println()
+}
+
 func ParseInput(name string) *Grid {
 	lines := lib.ReadLines(name)
 	return &Grid{rowcol.NewByteGridFromStrings(lines)}
@@ -56,9 +63,9 @@ func ParseInput(name string) *Grid {
 func SolvePart1(grid *Grid) int {
 	pos, ok := grid.Find(func(v byte) bool { return v == '^' })
 	assert.True(ok)
-	visited := rowcol.NewGrid[bool](grid.Size())
-
 	grid.SetPos(pos, '.')
+
+	visited := rowcol.NewGrid[bool](grid.Size())
 	visited.SetPos(pos, true)
 	dir := rowcol.Up
 	for {
@@ -98,5 +105,79 @@ func TurnRight(dir rowcol.Direction) rowcol.Direction {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(grid *Grid) int {
-	return 0
+	pos, ok := grid.Find(func(v byte) bool { return v == '^' })
+	assert.True(ok)
+	grid.SetPos(pos, '.')
+
+	nloops := 0
+	rows, cols := grid.Size()
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			if r == pos.Row && c == pos.Col {
+				continue // guard start position
+			}
+			if grid.Get(r, c) == '.' {
+				grid.Set(r, c, '#')
+				//grid.Print()
+				if IsLoop(grid, pos) {
+					nloops++
+				}
+				grid.Set(r, c, '.')
+			}
+		}
+	}
+	return nloops
+}
+
+func IsLoop(grid *Grid, pos rowcol.Pos) bool {
+	visited := rowcol.NewGrid[DirSet](grid.Size())
+
+	dir := rowcol.Up
+	visited.SetPos(pos, NewDirSet(dir))
+	for {
+		next := pos.Add(rowcol.Pos(dir))
+		if !grid.IsValidPos(next) {
+			return false // guard is leaving the map -> no loop
+		}
+
+		if grid.GetPos(next) != '.' {
+			dir = TurnRight(dir)
+			continue
+		}
+		pos = next
+		set := visited.GetPos(pos)
+		if set.IsSet(dir) {
+			return true
+		}
+		set = set.Add(dir)
+		visited.SetPos(pos, set)
+	}
+}
+
+type DirSet byte
+
+func NewDirSet(dir rowcol.Direction) DirSet {
+	var set DirSet
+	set = set.Add(dir)
+	return set
+}
+
+func (set DirSet) Add(dir rowcol.Direction) DirSet {
+	for i, d := range rowcol.Directions {
+		if d == dir {
+			mask := DirSet(1) << uint(i)
+			return set | mask
+		}
+	}
+	panic("invalid direction")
+}
+
+func (set DirSet) IsSet(dir rowcol.Direction) bool {
+	for i, d := range rowcol.Directions {
+		if d == dir {
+			mask := DirSet(1) << uint(i)
+			return (set & mask) != 0
+		}
+	}
+	panic("invalid direction")
 }
