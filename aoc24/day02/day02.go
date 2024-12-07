@@ -26,15 +26,15 @@ func main() {
 func ProcessPart1(name string) {
 	fmt.Println("Part 1 input:", name)
 	input := ParseInput(name)
-	safe := SolvePart1(input)
-	fmt.Println("Safe:", safe)
+	result := SolvePart1(input)
+	fmt.Println("Result:", result)
 }
 
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
 	input := ParseInput(name)
-	safe := SolvePart2(input)
-	fmt.Println("Safe:", safe)
+	result := SolvePart2(input)
+	fmt.Println("Result:", result)
 }
 
 ////////////////////////////////////////////////////////////

@@ -21,16 +21,16 @@ func ProcessPart1(name string) {
 	fmt.Println("Part 1 input:", name)
 	lines := lib.ReadLines(name)
 	grid := ParseInput(lines)
-	count := grid.CountXmas()
-	fmt.Println("Count:", count)
+	result := grid.CountXmas()
+	fmt.Println("Result:", result)
 }
 
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
 	lines := lib.ReadLines(name)
 	grid := ParseInput(lines)
-	count := grid.CountXmasP2()
-	fmt.Println("Count:", count)
+	result := grid.CountXmasP2()
+	fmt.Println("Result:", result)
 }
 
 ////////////////////////////////////////////////////////////
