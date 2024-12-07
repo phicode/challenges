@@ -7,6 +7,7 @@ import (
 
 	"git.bind.ch/phil/challenges/lib"
 	"git.bind.ch/phil/challenges/lib/assert"
+	"git.bind.ch/phil/challenges/lib/assets"
 	"git.bind.ch/phil/challenges/lib/rowcol"
 )
 
@@ -18,6 +19,7 @@ func main() {
 
 	lib.Timed("Part 2", ProcessPart2, "aoc24/day06/example.txt")
 	lib.Timed("Part 2", ProcessPart2, "aoc24/day06/input.txt")
+	//lib.Profile(20, "part2.pprof", "Part 2", ProcessPart2, "aoc24/day06/input.txt")
 }
 
 func ProcessPart1(name string) {
@@ -54,7 +56,7 @@ func (g *Grid) Print() {
 }
 
 func ParseInput(name string) *Grid {
-	lines := lib.ReadLines(name)
+	lines := lib.ReadLines(assets.MustFind(name))
 	return &Grid{rowcol.NewByteGridFromStrings(lines)}
 }
 
@@ -80,26 +82,12 @@ func SolvePart1(grid *Grid) int {
 		}
 
 		if grid.GetPos(next) != '.' {
-			dir = TurnRight(dir)
+			dir = dir.Right()
 		} else {
 			pos = next
 			visited.SetPos(pos, true)
 		}
 	}
-}
-
-func TurnRight(dir rowcol.Direction) rowcol.Direction {
-	switch dir {
-	case rowcol.Up:
-		return rowcol.Right
-	case rowcol.Right:
-		return rowcol.Down
-	case rowcol.Down:
-		return rowcol.Left
-	case rowcol.Left:
-		return rowcol.Up
-	}
-	panic("invalid direction")
 }
 
 ////////////////////////////////////////////////////////////
@@ -111,6 +99,10 @@ func SolvePart2(grid *Grid) int {
 
 	nloops := 0
 	rows, cols := grid.Size()
+
+	visited := rowcol.NewGrid[DirSet](grid.Size())
+	emptyRow := make([]DirSet, grid.Columns())
+
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
 			if r == pos.Row && c == pos.Col {
@@ -118,10 +110,10 @@ func SolvePart2(grid *Grid) int {
 			}
 			if grid.Get(r, c) == '.' {
 				grid.Set(r, c, '#')
-				//grid.Print()
-				if IsLoop(grid, pos) {
+				if IsLoop(grid, pos, visited) {
 					nloops++
 				}
+				visited.ResetByRows(emptyRow)
 				grid.Set(r, c, '.')
 			}
 		}
@@ -129,9 +121,7 @@ func SolvePart2(grid *Grid) int {
 	return nloops
 }
 
-func IsLoop(grid *Grid, pos rowcol.Pos) bool {
-	visited := rowcol.NewGrid[DirSet](grid.Size())
-
+func IsLoop(grid *Grid, pos rowcol.Pos, visited rowcol.Grid[DirSet]) bool {
 	dir := rowcol.Up
 	visited.SetPos(pos, NewDirSet(dir))
 	for {
@@ -141,7 +131,7 @@ func IsLoop(grid *Grid, pos rowcol.Pos) bool {
 		}
 
 		if grid.GetPos(next) != '.' {
-			dir = TurnRight(dir)
+			dir = dir.Right()
 			continue
 		}
 		pos = next
@@ -163,21 +153,18 @@ func NewDirSet(dir rowcol.Direction) DirSet {
 }
 
 func (set DirSet) Add(dir rowcol.Direction) DirSet {
-	for i, d := range rowcol.Directions {
-		if d == dir {
-			mask := DirSet(1) << uint(i)
-			return set | mask
-		}
-	}
-	panic("invalid direction")
+	return set | dirMask(dir)
 }
 
 func (set DirSet) IsSet(dir rowcol.Direction) bool {
-	for i, d := range rowcol.Directions {
-		if d == dir {
-			mask := DirSet(1) << uint(i)
-			return (set & mask) != 0
-		}
-	}
-	panic("invalid direction")
+	return (set & dirMask(dir)) != 0
+}
+
+// Left  {Row: 0, Col: -1} = 1*3 + 0 = 3
+// Right {Row: 0, Col: +1} = 1*3 + 2 = 5
+// Up    {Row: -1, Col: 0} = 0*3 + 1 = 1
+// Down  {Row: +1, Col: 0} = 2*3 + 1 = 7
+func dirMask(dir rowcol.Direction) DirSet {
+	shift := (dir.Row+1)*3 + (dir.Col + 1)
+	return DirSet(1) << shift
 }

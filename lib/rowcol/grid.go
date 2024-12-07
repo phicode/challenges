@@ -102,6 +102,25 @@ func (g *Grid[T]) Find(eq func(T) bool) (Pos, bool) {
 	return Pos{}, false
 }
 
+func (g *Grid[T]) Reset(v T) {
+	rows, cols := g.Size()
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			g.Data[r][c] = v
+		}
+	}
+}
+
+func (g *Grid[T]) ResetByRows(data []T) {
+	if len(data) != g.Columns() {
+		panic(fmt.Errorf("invalid data size, got=%d, expected=%d", len(data), g.Columns()))
+	}
+	rows := g.Rows()
+	for r := 0; r < rows; r++ {
+		copy(g.Data[r], data)
+	}
+}
+
 func NewByteGridFromStrings(xs []string) Grid[byte] {
 	g := NewGrid[byte](len(xs), len(xs[0]))
 	for i, x := range xs {
