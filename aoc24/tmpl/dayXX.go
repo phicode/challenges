@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/rowcol"
 )
 
 var VERBOSE = 1
@@ -41,8 +40,7 @@ func log(v int, msg string) {
 
 ////////////////////////////////////////////////////////////
 
-type Grid struct {
-	rowcol.Grid[byte]
+type Input struct {
 }
 
 func ParseInput(name string) Input {
