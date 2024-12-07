@@ -1,4 +1,4 @@
-module git.bind.ch/phil/challenges
+module github.com/phicode/challenges
 
 go 1.23.0
 

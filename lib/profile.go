@@ -7,8 +7,8 @@ import (
 	"runtime/pprof"
 	"time"
 
-	"git.bind.ch/phil/challenges/lib/assert"
-	"git.bind.ch/phil/challenges/lib/assets"
+	"github.com/phicode/challenges/lib/assert"
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func Profile(repeat int, pprofFile, name string, f func(string), input string) {

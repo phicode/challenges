@@ -8,7 +8,7 @@ for d in aoc22/day* ; do
     echo "skipping day16"
   else
     echo "RUNNING: ${d}"
-    if ! go run "git.bind.ch/phil/challenges/${d}" ; then
+    if ! go run "github.com/phicode/challenges/${d}" ; then
       echo "ABNORMAL TERMINATION"
       exit 1
     fi

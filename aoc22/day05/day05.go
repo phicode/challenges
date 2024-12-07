@@ -8,6 +8,8 @@ import (
 	"os"
 	"slices"
 	"strings"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func main() {
@@ -43,7 +45,7 @@ func Process(name string) {
 }
 
 func ReadInput(name string) (CrateStacks, []Instruction) {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}

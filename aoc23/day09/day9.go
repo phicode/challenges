@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 var VERBOSE = 0
@@ -51,12 +51,6 @@ func ProcessPart2(name string) {
 	fmt.Println("Sum:", sum)
 
 	fmt.Println()
-}
-
-func debug(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

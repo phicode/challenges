@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 // TODO: timing boilerplate
@@ -33,12 +33,6 @@ func ProcessPart2(name string) {
 	_ = lines
 
 	fmt.Println()
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

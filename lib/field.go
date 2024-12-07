@@ -17,17 +17,17 @@ func NewField(n int) *Field {
 }
 
 const (
-	BUCKET_MASK  = 0xFFFF_FFFF_FFFF_FFC0
-	BUCKET_SHIFT = 6 // 2^6=64
-	VALUE_MASK   = 0x3F
+	BucketMask  = 0xFFFF_FFFF_FFFF_FFC0
+	BucketShift = 6 // 2^6=64
+	ValueMask   = 0x3F
 )
 
 func (f *Field) Set(x int) {
 	if x < 0 || x >= f.n {
 		return
 	}
-	bucket := (uint64(x) & BUCKET_MASK) >> BUCKET_SHIFT
-	bit := uint64(1 << (uint64(x) & VALUE_MASK))
+	bucket := (uint64(x) & BucketMask) >> BucketShift
+	bit := uint64(1 << (uint64(x) & ValueMask))
 	f.data[bucket] |= bit
 }
 

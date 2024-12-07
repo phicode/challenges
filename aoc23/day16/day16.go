@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/rowcol"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/rowcol"
 )
 
 var VERBOSE = 1
@@ -73,12 +73,6 @@ func Part2BruteForce(grid *Grid) int {
 		grid.ResetEnergized()
 	}
 	return e
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/math"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/math"
 )
 
 var DEBUG = 1
@@ -43,12 +43,6 @@ func ProcessPart2(name string) {
 	fmt.Println("Steps:", steps)
 
 	fmt.Println()
-}
-
-func debug(v int, msg string) {
-	if v <= DEBUG {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

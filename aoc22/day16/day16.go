@@ -10,7 +10,8 @@ import (
 	"slices"
 	"strings"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/assets"
 )
 
 const MEMOIZATION = true
@@ -87,7 +88,7 @@ func Process2(name string, rounds int) {
 }
 
 func ReadInput(name string) []string {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}

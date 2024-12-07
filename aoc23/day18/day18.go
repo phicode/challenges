@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strconv"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/rowcol"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/rowcol"
 )
 
 var VERBOSE = 0

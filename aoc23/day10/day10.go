@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 var VERBOSE = 2
@@ -50,12 +50,6 @@ func ProcessPart2(name string) {
 	cleaned.Print()
 
 	fmt.Println()
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

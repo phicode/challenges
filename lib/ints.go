@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.bind.ch/phil/challenges/lib/assert"
+	"github.com/phicode/challenges/lib/assert"
 )
 
 func ToInt(s string) int {

@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func main() {
@@ -59,7 +61,7 @@ func MonkeyBusiness(monkeys []*Monkey) any {
 }
 
 func ReadInput(name string) []string {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}

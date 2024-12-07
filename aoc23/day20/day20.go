@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/math"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/math"
 )
 
 var VERBOSE = 2
@@ -187,7 +187,7 @@ func ParseNetwork(lines []string) *Network {
 		c.SetInputs(n.Inputs[c.Name])
 	}
 	// find untyped outputs
-	for name, _ := range n.Inputs {
+	for name := range n.Inputs {
 		if _, found := n.All[name]; !found {
 			n.AddUntyped(name)
 			if VERBOSE >= 1 {

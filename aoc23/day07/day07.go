@@ -7,7 +7,7 @@ import (
 	"slices"
 	"sort"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 var DEBUG = 0

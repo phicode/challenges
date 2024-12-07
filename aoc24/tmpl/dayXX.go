@@ -3,19 +3,21 @@ package main
 // https://adventofcode.com/2024/day/XX
 
 import (
+	"flag"
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
-var VERBOSE = 1
-
 func main() {
+	flag.Parse()
 	lib.Timed("Part 1", ProcessPart1, "aoc24/dayXX/example.txt")
 	lib.Timed("Part 1", ProcessPart1, "aoc24/dayXX/input.txt")
 
 	lib.Timed("Part 2", ProcessPart2, "aoc24/dayXX/example.txt")
 	lib.Timed("Part 2", ProcessPart2, "aoc24/dayXX/input.txt")
+
+	//lib.Profile(1, "dayXX.pprof", "Part 2", ProcessPart2, "aoc24/dayXX/input.txt")
 }
 
 func ProcessPart1(name string) {
@@ -30,12 +32,6 @@ func ProcessPart2(name string) {
 	input := ParseInput(name)
 	result := SolvePart2(input)
 	fmt.Println("Result:", result)
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

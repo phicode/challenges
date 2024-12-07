@@ -17,10 +17,10 @@ func IsLoop[T comparable](xs []T, start, end int) bool {
 func FindLoop[T comparable](xs []T) (int, int) {
 	l := len(xs)
 	for i := 0; i < len(xs); i++ {
-		max_testlen := (l - i) / 2
-		for testlen := 1; testlen <= max_testlen; testlen++ {
-			if IsLoop(xs, i, i+testlen) {
-				return i, testlen
+		maxTestLen := (l - i) / 2
+		for testLen := 1; testLen <= maxTestLen; testLen++ {
+			if IsLoop(xs, i, i+testLen) {
+				return i, testLen
 			}
 		}
 	}

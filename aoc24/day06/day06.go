@@ -5,13 +5,10 @@ package main
 import (
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/assert"
-	"git.bind.ch/phil/challenges/lib/assets"
-	"git.bind.ch/phil/challenges/lib/rowcol"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/assert"
+	"github.com/phicode/challenges/lib/rowcol"
 )
-
-var VERBOSE = 1
 
 func main() {
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day06/example.txt")
@@ -36,12 +33,6 @@ func ProcessPart2(name string) {
 	fmt.Println("Result:", result)
 }
 
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
-}
-
 ////////////////////////////////////////////////////////////
 
 type Grid struct {
@@ -56,7 +47,7 @@ func (g *Grid) Print() {
 }
 
 func ParseInput(name string) *Grid {
-	lines := lib.ReadLines(assets.MustFind(name))
+	lines := lib.ReadLines(name)
 	return &Grid{rowcol.NewByteGridFromStrings(lines)}
 }
 

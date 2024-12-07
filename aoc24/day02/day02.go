@@ -3,19 +3,19 @@ package main
 // https://adventofcode.com/2024/day/2
 
 import (
+	"flag"
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 const (
-	MIN_DIFF = 1
-	MAX_DIFF = 3
+	MinDiff = 1
+	MaxDiff = 3
 )
 
-var VERBOSE = 1
-
 func main() {
+	flag.Parse()
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day02/example.txt")
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day02/input.txt")
 
@@ -35,12 +35,6 @@ func ProcessPart2(name string) {
 	input := ParseInput(name)
 	safe := SolvePart2(input)
 	fmt.Println("Safe:", safe)
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -76,40 +70,19 @@ func SolvePart1(input Input) int {
 func (r Report) IsSafe() bool {
 	ds := differences(r.Levels)
 	return safeP1(ds)
-	//return sameSign(d) && withinLimits(d, 1, 3)
 }
-
-//func withinLimits(xs []int, _min, _max int) bool {
-//	for _, x := range xs {
-//		v := lib.AbsInt(x)
-//		if v < _min || v > _max {
-//			return false
-//		}
-//	}
-//	return true
-//}
 
 func safeP1(diffs []int) bool {
 	s := sign(diffs[0])
 	for i := 0; i < len(diffs); i++ {
 		d := diffs[i]
 		ad := lib.AbsInt(d)
-		if sign(diffs[i]) != s || ad < MIN_DIFF || ad > MAX_DIFF {
+		if sign(diffs[i]) != s || ad < MinDiff || ad > MaxDiff {
 			return false
 		}
 	}
 	return true
 }
-
-//func sameSign(xs []int) bool {
-//	s := sign(xs[0])
-//	for i := 1; i < len(xs); i++ {
-//		if sign(xs[i]) != s {
-//			return false
-//		}
-//	}
-//	return true
-//}
 
 func sign(x int) int {
 	if x == 0 {
@@ -139,10 +112,6 @@ func SolvePart2(input Input) int {
 			safe++
 			continue
 		}
-
-		//if report.IsSafeP2() {
-		//	safe++
-		//}
 		if report.IsSafeP2Naive() {
 			safe++
 		}
@@ -185,7 +154,7 @@ func (r Report) IsSafeP2() bool {
 	for i := 0; i < l; i++ {
 		c := ds[i] + ds[i+1]
 		ac := lib.AbsInt(c)
-		if ac < MIN_DIFF || ac > MAX_DIFF {
+		if ac < MinDiff || ac > MaxDiff {
 			continue
 		}
 		sc := sign(c)

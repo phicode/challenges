@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"git.bind.ch/phil/challenges/lib/rowcol"
+	"github.com/phicode/challenges/lib/rowcol"
 	"github.com/stretchr/testify/assert"
 )
 

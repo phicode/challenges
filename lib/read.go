@@ -3,10 +3,13 @@ package lib
 import (
 	"bufio"
 	"os"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func ReadLines(name string) []string {
-	f, err := os.Open(name)
+	path := assets.MustFind(name)
+	f, err := os.Open(path)
 	if err != nil {
 		panic(err)
 	}

@@ -5,8 +5,8 @@ package main
 import (
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/rowcol"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/rowcol"
 )
 
 var VERBOSE = 1
@@ -126,7 +126,7 @@ func startToMarked(input byte) byte {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(g *Grid, steps int) int {
-	var ps map[rowcol.Pos]bool = make(map[rowcol.Pos]bool)
+	ps := make(map[rowcol.Pos]bool)
 	start := FindStart(g)
 	ps[start] = true
 
@@ -192,7 +192,7 @@ var offC = [4]int{1, -1, 0, 0}
 func FillInStepPart2(g *Grid, ps map[rowcol.Pos]bool) map[rowcol.Pos]bool {
 	next := make(map[rowcol.Pos]bool)
 	rows, cols := g.Rows(), g.Columns()
-	for pos, _ := range ps {
+	for pos := range ps {
 		for i := 0; i < 4; i++ {
 			nextpos := rowcol.Pos{Row: pos.Row + offR[i], Col: pos.Col + offC[i]}
 			testpos := rowcol.Pos{

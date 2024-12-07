@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func main() {
@@ -87,7 +89,7 @@ type Elf struct {
 }
 
 func ReadInput(name string) []*Elf {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/parser"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/parser"
 )
 
 func main() {

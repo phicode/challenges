@@ -9,10 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
-
-var VERBOSE = 1
 
 func main() {
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day03/example.txt")
@@ -36,17 +34,11 @@ func ProcessPart2(name string) {
 	fmt.Println("Total:", total)
 }
 
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
-}
-
 ////////////////////////////////////////////////////////////
 
 type Input struct {
 	Muls    []Mul
-	DoDonts []DoDont
+	Enabled []Enabled
 }
 
 type Mul struct {
@@ -54,9 +46,9 @@ type Mul struct {
 	start int
 }
 
-type DoDont struct {
-	Start int
-	Do    bool
+type Enabled struct {
+	Start   int
+	Enabled bool
 }
 
 ////////////////////////////////////////////////////////////
@@ -121,12 +113,12 @@ func ParseInput(name string) Input {
 	doIndexes := lib.AllStringIndexes(line, "do()")
 	dontIndexes := lib.AllStringIndexes(line, "don't()")
 	for _, index := range doIndexes {
-		rv.DoDonts = append(rv.DoDonts, DoDont{index, true})
+		rv.Enabled = append(rv.Enabled, Enabled{index, true})
 	}
 	for _, index := range dontIndexes {
-		rv.DoDonts = append(rv.DoDonts, DoDont{index, false})
+		rv.Enabled = append(rv.Enabled, Enabled{index, false})
 	}
-	sort.Slice(rv.DoDonts, func(i, j int) bool { return rv.DoDonts[i].Start < rv.DoDonts[j].Start })
+	sort.Slice(rv.Enabled, func(i, j int) bool { return rv.Enabled[i].Start < rv.Enabled[j].Start })
 	return rv
 }
 
@@ -153,7 +145,7 @@ func SolvePart2(input Input) int {
 }
 
 func (i Input) FindDoDont(start int) bool {
-	idx, _ := slices.BinarySearchFunc(i.DoDonts, start, func(dd DoDont, x int) int {
+	idx, _ := slices.BinarySearchFunc(i.Enabled, start, func(dd Enabled, x int) int {
 		if dd.Start == x {
 			return 0
 		}
@@ -163,13 +155,13 @@ func (i Input) FindDoDont(start int) bool {
 		return 1
 	})
 	// we are searching for a value that does not exist,
-	// so binary search returns the "insert" position, which is one index above the 'DoDont' that
+	// so binary search returns the "insert" position, which is one index above the 'Enabled' that
 	// interests us
 	idx--
 	if idx < 0 {
 		// DO
 		return true
 	}
-	dodont := i.DoDonts[idx]
-	return dodont.Do
+	dodont := i.Enabled[idx]
+	return dodont.Enabled
 }

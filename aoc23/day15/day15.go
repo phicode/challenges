@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 var VERBOSE = 1
@@ -46,12 +46,6 @@ func ProcessPart2(name string) {
 	SolvePart2(lines[0])
 
 	fmt.Println()
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

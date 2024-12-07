@@ -5,11 +5,9 @@ package main
 import (
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/rowcol"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/rowcol"
 )
-
-var VERBOSE = 1
 
 func main() {
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day04/example.txt")
@@ -33,12 +31,6 @@ func ProcessPart2(name string) {
 	grid := ParseInput(lines)
 	count := grid.CountXmasP2()
 	fmt.Println("Count:", count)
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

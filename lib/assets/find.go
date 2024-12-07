@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.bind.ch/phil/challenges/lib/assert"
+	"github.com/phicode/challenges/lib/assert"
 )
 
 func Find(name string) (string, error) {

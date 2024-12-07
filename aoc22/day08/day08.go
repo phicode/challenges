@@ -6,6 +6,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func main() {
@@ -26,7 +28,7 @@ func Process(name string) {
 }
 
 func ReadInput(name string) []string {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}
@@ -47,13 +49,13 @@ func ReadInput(name string) []string {
 
 ////////////////////////////////////////////////////////////
 
-type grid struct {
+type Grid struct {
 	rows    int
 	columns int
 	data    []int
 }
 
-func NewGrid(lines []string) *grid {
+func NewGrid(lines []string) *Grid {
 	rows := len(lines)
 	columns := len(lines[0])
 	data := make([]int, rows*columns)
@@ -70,18 +72,18 @@ func NewGrid(lines []string) *grid {
 			i++
 		}
 	}
-	return &grid{
+	return &Grid{
 		rows:    rows,
 		columns: columns,
 		data:    data,
 	}
 }
 
-func (g *grid) idx(x, y int) int {
+func (g *Grid) idx(x, y int) int {
 	return y*g.columns + x
 }
 
-func (g *grid) print() {
+func (g *Grid) print() {
 	for y := 0; y < g.rows; y++ {
 		for x := 0; x < g.rows; x++ {
 			fmt.Printf("%d", g.data[g.idx(x, y)])
@@ -90,7 +92,7 @@ func (g *grid) print() {
 	}
 }
 
-func (g *grid) NumVisible() int {
+func (g *Grid) NumVisible() int {
 	v := g.columns*2 + (g.rows-2)*2
 	for y := 1; y < g.rows-1; y++ {
 		for x := 1; x < g.rows-1; x++ {
@@ -102,7 +104,7 @@ func (g *grid) NumVisible() int {
 	return v
 }
 
-func (g *grid) MaxScenicScore() int {
+func (g *Grid) MaxScenicScore() int {
 	ss := -1
 	for y := 0; y < g.rows; y++ {
 		for x := 0; x < g.rows; x++ {
@@ -113,7 +115,7 @@ func (g *grid) MaxScenicScore() int {
 	return ss
 }
 
-func (g *grid) isVisible(x int, y int) bool {
+func (g *Grid) isVisible(x int, y int) bool {
 	h := g.data[g.idx(x, y)]
 	blocked := 0
 	// horizontal left
@@ -150,7 +152,7 @@ func (g *grid) isVisible(x int, y int) bool {
 	return blocked < 4
 }
 
-func (g *grid) score(x int, y int) int {
+func (g *Grid) score(x int, y int) int {
 	h := g.data[g.idx(x, y)]
 
 	var a, b, c, d int

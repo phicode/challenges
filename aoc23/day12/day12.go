@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 var VERBOSE = 1

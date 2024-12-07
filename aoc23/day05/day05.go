@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 var debug = 0
@@ -306,7 +306,8 @@ func (t Translation) String() string {
 // translates range 'x', returning the result of that transformation and any remaining, non-translated, ranges.
 func (x Range) Translate(t Translation) (Range, []Range) {
 	if x.Max() < t.Start || x.Start > t.Max() {
-		panic("invalid state")
+		panic(fmt.Sprintf("invalid state: %d < %d || %d > %d",
+			x.Max(), t.Start, x.Start, t.Max()))
 	}
 	var rem []Range
 	// the part of x before t

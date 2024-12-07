@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
-const EXTEND_AMOUNT = 500
+const ExtendAmount = 500
 
 func main() {
 	Process("aoc22/day14/example.txt", false)
@@ -41,7 +43,7 @@ func Process(name string, ext bool) {
 }
 
 func ReadInput(name string) []string {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}
@@ -117,13 +119,13 @@ func (w *World) ScaleAll(ext bool) {
 		}
 	}
 	if ext {
-		minx -= EXTEND_AMOUNT
+		minx -= ExtendAmount
 	}
 
 	w.ShiftX, w.ShiftY = minx, miny
 	var maxx, maxy int
 	for _, steps := range w.programs {
-		for i, _ := range steps {
+		for i := range steps {
 			steps[i].X -= minx
 			steps[i].Y -= miny
 			maxx = max(maxx, steps[i].X)
@@ -131,7 +133,7 @@ func (w *World) ScaleAll(ext bool) {
 		}
 	}
 	if ext {
-		maxx += EXTEND_AMOUNT
+		maxx += ExtendAmount
 		maxy += 2
 	}
 	w.Cols = maxx + 1

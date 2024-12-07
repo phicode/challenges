@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 func main() {

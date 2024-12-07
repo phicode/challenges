@@ -6,6 +6,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func main() {
@@ -29,7 +31,7 @@ func Process(name string, tails int) {
 }
 
 func ReadInput(name string) []Step {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}
@@ -169,7 +171,7 @@ func (b *Board) MoveTail(i int, x int, y int) {
 func (b *Board) RenderVisited() {
 	var minx, maxx, miny, maxy int
 	first := true
-	for pos, _ := range b.Visited {
+	for pos := range b.Visited {
 		if first {
 			minx, maxx = pos.X, pos.X
 			miny, maxy = pos.Y, pos.Y
@@ -181,17 +183,17 @@ func (b *Board) RenderVisited() {
 			maxy = max(maxy, pos.Y)
 		}
 	}
-	xrange := maxx - minx + 1
-	yrange := maxy - miny + 1
-	field := make([]rune, xrange*yrange)
-	for i, _ := range field {
+	xRange := maxx - minx + 1
+	yRange := maxy - miny + 1
+	field := make([]rune, xRange*yRange)
+	for i := range field {
 		field[i] = '.'
 	}
-	for pos, _ := range b.Visited {
+	for pos := range b.Visited {
 		x, y := pos.X-minx, pos.Y-miny
-		field[y*xrange+x] = '#'
+		field[y*xRange+x] = '#'
 	}
-	for y := yrange - 1; y >= 0; y-- {
-		fmt.Println(string(field[y*xrange : (y+1)*xrange]))
+	for y := yRange - 1; y >= 0; y-- {
+		fmt.Println(string(field[y*xRange : (y+1)*xRange]))
 	}
 }

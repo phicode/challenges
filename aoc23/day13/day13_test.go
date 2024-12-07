@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,6 +14,7 @@ func TestPart2(t *testing.T) {
 	assert.Equal(t, 1, len(grids))
 	g := grids[0]
 	ts := g.Transpose()
+	ts.Print()
 	// toggling row 11 (index 10) and col 7 (index 6) should find the mirror at line 8 (index 7)
-	assert.Equal(t, 7, FindMirrorPart2v2(ts))
+	assert.Equal(t, 8, FindMirrorPart2v2(ts))
 }

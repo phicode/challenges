@@ -7,8 +7,8 @@ import (
 	"math"
 	"strings"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/assert"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/assert"
 )
 
 var VERBOSE = 2
@@ -430,7 +430,7 @@ func (set VertexSet) Intersection(b VertexSet) VertexSet {
 }
 func (set VertexSet) DifferenceSet(b VertexSet) VertexSet {
 	rv := set.Copy()
-	for k, _ := range b {
+	for k := range b {
 		delete(rv, k)
 	}
 	return rv
@@ -545,7 +545,7 @@ func KernighanLinUnevenVertices(as VertexSet, bs VertexSet) {
 	// b is the bigger set
 	assert.True(len(as) < len(bs))
 
-	var maxd int = math.MinInt
+	var maxd = math.MinInt
 	var maxb *Vertex
 	for _, b := range bs {
 		//bs.RemoveInPlace(b)
@@ -599,7 +599,7 @@ func (graph *Graph) MinimumConnectionsWithStart(A, B VertexSet) (VertexSet, Vert
 }
 
 func findMostUnevenVertex(as, bs VertexSet) *Vertex {
-	var maxval int = math.MinInt
+	var maxval = math.MinInt
 	var maxvert *Vertex
 
 	for _, a := range as {

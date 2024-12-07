@@ -11,6 +11,8 @@ import (
 	"os"
 	"slices"
 	"time"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func main() {
@@ -49,7 +51,7 @@ func NewGrid(lines []string) *Grid {
 }
 
 func ReadInput(name string) []string {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}

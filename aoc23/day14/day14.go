@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"git.bind.ch/phil/challenges/lib"
-	"git.bind.ch/phil/challenges/lib/rowcol"
+	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/rowcol"
 )
 
 var VERBOSE = 0
@@ -86,12 +86,6 @@ func Skip(rem int, start int, loopLen int) int {
 	canSkipAmount := loopLen * canSkipLoops
 	fmt.Println("remaining:", rem, " - skipping", canSkipLoops, "loops for", canSkipAmount)
 	return rem - canSkipAmount
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

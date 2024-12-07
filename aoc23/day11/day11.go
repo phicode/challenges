@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sort"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 // TODO: timing boilerplate
@@ -43,12 +43,6 @@ func Solve(name string, e Expansion) {
 		}
 	}
 	fmt.Println("sum of distance:", space.Distances())
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

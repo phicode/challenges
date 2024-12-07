@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 var VERBOSE = 1
@@ -37,12 +37,6 @@ func ProcessPart2(name string) {
 	area := f.FindSurfaceArea()
 	fmt.Println("Area:", area)
 	fmt.Println()
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

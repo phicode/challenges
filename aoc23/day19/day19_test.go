@@ -8,13 +8,13 @@ import (
 
 func TestCondition_Split(t *testing.T) {
 	gt := Condition{
-		Label:  "label",
+		Index:  0,
 		Op:     '>',
 		Value:  5,
 		Target: "target",
 	}
 	lt := Condition{
-		Label:  "label",
+		Index:  1,
 		Op:     '<',
 		Value:  5,
 		Target: "target",

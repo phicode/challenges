@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 	"slices"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 var debug = 1
@@ -85,7 +87,7 @@ func NewRock(ls ...Line) Rock {
 }
 
 func ReadInput(name string) []string {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}

@@ -6,6 +6,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func main() {
@@ -113,7 +115,7 @@ type Space struct {
 }
 
 func ReadInput(name string) []string {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}

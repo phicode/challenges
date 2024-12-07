@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"sort"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
-
-var VERBOSE = 1
 
 func main() {
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day01/example.txt")
@@ -31,12 +29,6 @@ func ProcessPart2(name string) {
 	input := ParseInput(name)
 	dist := SolvePart2(input)
 	fmt.Println("Distance:", dist)
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////

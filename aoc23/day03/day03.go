@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 func main() {
@@ -91,7 +91,7 @@ func (g Grid) ExtractNumber(x, y int) (int, Pos) {
 	start := Pos{x, y}
 
 	// accumulate number
-	var number int = g.GetDigit(x, y)
+	number := g.GetDigit(x, y)
 	w := g.Width()
 	for x+1 < w && IsDigit(g.Get(x+1, y)) {
 		x++

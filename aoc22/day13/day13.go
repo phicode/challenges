@@ -9,6 +9,8 @@ import (
 	"os"
 	"sort"
 	"strconv"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 func main() {
@@ -92,7 +94,7 @@ func (p Program) Compare() bool {
 }
 
 func ReadInput(name string) []string {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}

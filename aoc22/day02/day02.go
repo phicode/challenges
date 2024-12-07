@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/phicode/challenges/lib/assets"
 )
 
 // https://adventofcode.com/2022/day/2
@@ -97,6 +99,7 @@ func (m Move) OutcomeAgainst(o Move) int {
 	return 0
 }
 
+// Wins check rules:
 // rock beats scissors
 // scissors beats paper
 // paper beats rock
@@ -140,13 +143,13 @@ func (r Round) Score() int {
 }
 
 func ReadInput(name string) []Round {
-	f, err := os.Open(name)
+	f, err := os.Open(assets.MustFind(name))
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
 	s := bufio.NewScanner(f)
-	rounds := []Round{}
+	var rounds []Round
 	for s.Scan() {
 		line := s.Text()
 		inputs := strings.Split(line, " ")

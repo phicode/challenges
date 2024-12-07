@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"git.bind.ch/phil/challenges/lib"
+	"github.com/phicode/challenges/lib"
 )
 
 var VERBOSE = 2
@@ -51,12 +51,6 @@ func ProcessPart2(name string) {
 	//test(b, a, c, 3, 5)
 
 	fmt.Println()
-}
-
-func log(v int, msg string) {
-	if v <= VERBOSE {
-		fmt.Println(msg)
-	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -244,9 +238,9 @@ func allmatch(others []RayI, candidate RayI, t1 int, t2 int) ([]int, bool) {
 
 func test(a RayI, b RayI, t1 int, t2 int) (RayI, bool, bool) {
 	// where a is at time t1
-	a_t1 := a.P.Add(a.V.MulS(t1))
-	b_t2 := b.P.Add(b.V.MulS(t2))
-	vec := b_t2.Sub(a_t1)
+	a1 := a.P.Add(a.V.MulS(t1))
+	b2 := b.P.Add(b.V.MulS(t2))
+	vec := b2.Sub(a1)
 	diffT := t2 - t1
 	if !DividesEven(vec, diffT) {
 		return RayI{}, false, Abort(vec, diffT)
@@ -255,9 +249,9 @@ func test(a RayI, b RayI, t1 int, t2 int) (RayI, bool, bool) {
 	// rock velocity
 	rv := vec.DivS(diffT)
 	// rock position at t0
-	rp_t0 := a_t1.Sub(rv.MulS(t1))
+	rp0 := a1.Sub(rv.MulS(t1))
 
-	rock := RayI{rp_t0, rv}
+	rock := RayI{rp0, rv}
 	return rock, true, false
 }
 
