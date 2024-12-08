@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/phicode/challenges/lib"
 	"github.com/phicode/challenges/lib/rowcol"
@@ -15,8 +16,9 @@ func main() {
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day08/example.txt")
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day08/input.txt")
 
-	//lib.Timed("Part 2", ProcessPart2, "aoc24/day08/example.txt")
-	//lib.Timed("Part 2", ProcessPart2, "aoc24/day08/input.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day08/example2.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day08/example.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day08/input.txt")
 
 	//lib.Profile(1, "day08.pprof", "Part 2", ProcessPart2, "aoc24/day08/input.txt")
 }
@@ -53,7 +55,7 @@ func ParseInput(name string) *Input {
 
 	byFreq := make(map[byte][]rowcol.Pos)
 	grid.VisitWithPos(func(v byte, p rowcol.Pos) {
-		if v == '.' {
+		if v == '.' || v == '#' {
 			return
 		}
 		antennas := byFreq[v]
@@ -73,6 +75,7 @@ func ParseInput(name string) *Input {
 func SolvePart1(input *Input) int {
 	rows, cols := input.grid.Size()
 	antinodes := rowcol.NewGrid[byte](rows, cols)
+	antinodes.ResetByRows([]byte(strings.Repeat(".", cols)))
 
 	for _, freq := range input.frequencies {
 		for i, antennaA := range freq.antennas {
@@ -83,8 +86,8 @@ func SolvePart1(input *Input) int {
 				antinodes.SetIfValidPos(q, '#')
 			}
 		}
-		//fmt.Println("after frequency", freq.f)
-		//Print(antinodes)
+		lib.Log(lib.LogDebug, "after frequency", freq.f)
+		Print(antinodes)
 	}
 	return antinodes.Count(func(v byte) bool { return v == '#' })
 }
@@ -98,13 +101,40 @@ func Antinodes(a, b rowcol.Pos) (rowcol.Pos, rowcol.Pos) {
 
 func Print(g rowcol.Grid[byte]) {
 	for _, row := range g.Data {
-		msg := string(row)
-		lib.Log(lib.LogDebug, msg)
+		lib.Log(lib.LogDebug, string(row))
 	}
 }
 
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(input *Input) int {
-	return 0
+	rows, cols := input.grid.Size()
+	antinodes := rowcol.NewGrid[byte](rows, cols)
+	antinodes.ResetByRows([]byte(strings.Repeat(".", cols)))
+
+	for _, freq := range input.frequencies {
+		for i, antennaA := range freq.antennas {
+			for j := i + 1; j < len(freq.antennas); j++ {
+				antennaB := freq.antennas[j]
+				antinodes.SetPos(antennaA, '#')
+				antinodes.SetPos(antennaB, '#')
+				d := antennaA.Sub(antennaB)
+
+				p := antennaA.Add(d)
+				for antinodes.IsValidPos(p) {
+					antinodes.SetPos(p, '#')
+					p = p.Add(d)
+				}
+
+				q := antennaB.Sub(d)
+				for antinodes.IsValidPos(q) {
+					antinodes.SetPos(q, '#')
+					q = q.Sub(d)
+				}
+			}
+		}
+		lib.Log(lib.LogDebug, "after frequency", freq.f)
+		Print(antinodes)
+	}
+	return antinodes.Count(func(v byte) bool { return v == '#' })
 }

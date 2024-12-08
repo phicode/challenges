@@ -17,8 +17,8 @@ const (
 	LogTrace = 2
 )
 
-func Log(v int, msg string) {
+func Log(v int, a ...any) {
 	if v <= flagVerbose {
-		fmt.Println(msg)
+		fmt.Println(a)
 	}
 }
