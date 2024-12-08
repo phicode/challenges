@@ -13,9 +13,9 @@ type Grid[T any] struct {
 //	fmt.Println()
 //}
 
-func (g *Grid[T]) Rows() int        { return len(g.Data) }
-func (g *Grid[T]) Columns() int     { return len(g.Data[0]) }
-func (g *Grid[T]) Size() (int, int) { return g.Rows(), g.Columns() }
+func (g *Grid[T]) Rows() int                  { return len(g.Data) }
+func (g *Grid[T]) Columns() int               { return len(g.Data[0]) }
+func (g *Grid[T]) Size() (rows int, cols int) { return g.Rows(), g.Columns() }
 
 func (g *Grid[T]) SetRow(i int, data []T) {
 	if len(data) != g.Columns() {
@@ -32,6 +32,13 @@ func (g *Grid[T]) IsValidPosition(row, col int) bool {
 	return row >= 0 && col >= 0 && row < g.Rows() && col < g.Columns()
 }
 func (g *Grid[T]) IsValidPos(p Pos) bool { return g.IsValidPosition(p.Row, p.Col) }
+
+func (g *Grid[T]) SetIfValid(row, col int, v T) {
+	if g.IsValidPosition(row, col) {
+		g.Data[row][col] = v
+	}
+}
+func (g *Grid[T]) SetIfValidPos(p Pos, v T) { g.SetIfValid(p.Row, p.Col, v) }
 
 func (g *Grid[T]) Copy() Grid[T] {
 	c := NewGrid[T](g.Rows(), g.Columns())
@@ -62,11 +69,21 @@ func (g *Grid[T]) Count(cmp func(T) bool) int {
 	}
 	return count
 }
+
 func (g *Grid[T]) Visit(fn func(T)) {
 	rows, cols := g.Rows(), g.Columns()
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
 			fn(g.Data[r][c])
+		}
+	}
+}
+
+func (g *Grid[T]) VisitWithPos(fn func(T, Pos)) {
+	rows, cols := g.Rows(), g.Columns()
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			fn(g.Data[r][c], Pos{Row: r, Col: c})
 		}
 	}
 }
@@ -90,16 +107,29 @@ func Reduce[T any, E any](g *Grid[T], acc E, fn func(E, T) E) E {
 	return acc
 }
 
-func (g *Grid[T]) Find(eq func(T) bool) (Pos, bool) {
+func (g *Grid[T]) Find(pred func(T) bool) (Pos, bool) {
 	rows, cols := g.Size()
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
-			if eq(g.Data[r][c]) {
+			if pred(g.Data[r][c]) {
 				return Pos{r, c}, true
 			}
 		}
 	}
 	return Pos{}, false
+}
+
+func (g *Grid[T]) FindAll(pred func(T) bool) []Pos {
+	var rv []Pos
+	rows, cols := g.Size()
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			if pred(g.Data[r][c]) {
+				rv = append(rv, Pos{r, c})
+			}
+		}
+	}
+	return rv
 }
 
 func (g *Grid[T]) Reset(v T) {
