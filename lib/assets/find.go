@@ -24,7 +24,7 @@ func Find(name string) (string, error) {
 		}
 		parentBaseDir := filepath.Dir(baseDir)
 		if parentBaseDir == baseDir {
-			return "", errors.New("file not found:" + name)
+			return "", errors.New("file not found: " + name)
 		}
 		baseDir = parentBaseDir
 	}
