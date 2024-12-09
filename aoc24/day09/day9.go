@@ -1,6 +1,6 @@
 package main
 
-// https://adventofcode.com/2024/day/#X#
+// https://adventofcode.com/2024/day/9
 
 import (
 	"flag"
@@ -11,13 +11,13 @@ import (
 
 func main() {
 	flag.Parse()
-	lib.Timed("Part 1", ProcessPart1, "aoc24/day#XX#/example.txt")
-	lib.Timed("Part 1", ProcessPart1, "aoc24/day#XX#/input.txt")
+	lib.Timed("Part 1", ProcessPart1, "aoc24/day09/example.txt")
+	lib.Timed("Part 1", ProcessPart1, "aoc24/day09/input.txt")
 
-	lib.Timed("Part 2", ProcessPart2, "aoc24/day#XX#/example.txt")
-	lib.Timed("Part 2", ProcessPart2, "aoc24/day#XX#/input.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day09/example.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day09/input.txt")
 
-	//lib.Profile(1, "day#XX#.pprof", "Part 2", ProcessPart2, "aoc24/dayXX/input.txt")
+	//lib.Profile(1, "day09.pprof", "Part 2", ProcessPart2, "aoc24/dayXX/input.txt")
 }
 
 func ProcessPart1(name string) {
