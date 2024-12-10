@@ -53,92 +53,86 @@ func ParseInput(lines []string) *Input {
 
 ////////////////////////////////////////////////////////////
 
-func SolvePart1(input *Input) int {
-	visited := rowcol.NewGrid[bool](input.grid.Size())
+type Visitor interface {
+	Visit(pos rowcol.Pos, value byte) (end bool, result int)
+	SetResult(pos rowcol.Pos, result int)
+	Reset()
+}
+
+func traverse(g rowcol.Grid[byte], pos rowcol.Pos, value byte, v Visitor) int {
+	if !g.IsValidPos(pos) || g.GetPos(pos) != value {
+		return 0
+	}
+	if end, result := v.Visit(pos, value); end {
+		return result
+	}
+	result := traverse(g, pos.AddDir(rowcol.Up), value+1, v) +
+		traverse(g, pos.AddDir(rowcol.Down), value+1, v) +
+		traverse(g, pos.AddDir(rowcol.Left), value+1, v) +
+		traverse(g, pos.AddDir(rowcol.Right), value+1, v)
+	v.SetResult(pos, result)
+	return result
+}
+
+func Solve(input *Input, v Visitor) int {
 	trailheads := input.grid.FindAll(func(x byte) bool { return x == '0' })
 	sum := 0
 	for _, th := range trailheads {
-		sum += markDirs(input.grid, visited, th, byte('0'))
-		visited.Reset(false)
+		sum += traverse(input.grid, th, byte('0'), v)
+		v.Reset()
 	}
 	return sum
-}
-
-func markDirs(g rowcol.Grid[byte], visited rowcol.Grid[bool], p rowcol.Pos, value byte) int {
-	if g.GetPos(p) != value {
-		return 0
-	}
-	if visited.GetPos(p) {
-		return 0
-	}
-	sum := mark(g, visited, p, rowcol.Up, value+1) +
-		mark(g, visited, p, rowcol.Down, value+1) +
-		mark(g, visited, p, rowcol.Left, value+1) +
-		mark(g, visited, p, rowcol.Right, value+1)
-	visited.SetPos(p, true)
-	return sum
-}
-
-func mark(g rowcol.Grid[byte], visited rowcol.Grid[bool], p rowcol.Pos, dir rowcol.Direction, follow byte) int {
-	p = p.Add(rowcol.Pos(dir))
-	if !visited.IsValidPos(p) {
-		return 0
-	}
-	if visited.GetPos(p) {
-		return 0
-	}
-	if g.GetPos(p) != follow {
-		return 0
-	}
-	if follow == '9' {
-		visited.SetPos(p, true)
-		return 1
-	}
-	return markDirs(g, visited, p, follow)
 }
 
 ////////////////////////////////////////////////////////////
 
+type P1State struct {
+	visited rowcol.Grid[bool]
+}
+
+func (p *P1State) Visit(pos rowcol.Pos, value byte) (bool, int) {
+	if p.visited.GetPos(pos) {
+		return true, 0
+	}
+	p.visited.SetPos(pos, true)
+	if value == '9' {
+		return true, 1
+	}
+	return false, 0
+}
+func (p *P1State) SetResult(pos rowcol.Pos, result int) {}
+func (p *P1State) Reset() {
+	p.visited.Reset(false)
+}
+
+func SolvePart1(input *Input) int {
+	p := &P1State{rowcol.NewGrid[bool](input.grid.Size())}
+	return Solve(input, p)
+}
+
+////////////////////////////////////////////////////////////
+
+type P2State struct {
+	ways rowcol.Grid[int]
+}
+
+func (p *P2State) Visit(pos rowcol.Pos, value byte) (bool, int) {
+	if cached := p.ways.GetPos(pos); cached > 0 {
+		return true, cached
+	}
+	if value == '9' {
+		return true, 1
+	}
+	return false, 0
+}
+func (p *P2State) SetResult(pos rowcol.Pos, result int) {
+	p.ways.SetPos(pos, result)
+}
+func (p *P2State) Reset() {
+	p.ways.Reset(0)
+}
+
 func SolvePart2(input *Input) int {
-	ways := rowcol.NewGrid[int](input.grid.Size())
-	trailheads := input.grid.FindAll(func(x byte) bool { return x == '0' })
-	sum := 0
-	for _, th := range trailheads {
-		sum += markDirs2(input.grid, ways, th, byte('0'))
-		ways.Reset(0)
-	}
-	return sum
-}
-
-func markDirs2(g rowcol.Grid[byte], ways rowcol.Grid[int], p rowcol.Pos, value byte) int {
-	if g.GetPos(p) != value {
-		return 0
-	}
-	if cached := ways.GetPos(p); cached > 0 {
-		return cached
-	}
-	sum := mark2(g, ways, p, rowcol.Up, value+1) +
-		mark2(g, ways, p, rowcol.Down, value+1) +
-		mark2(g, ways, p, rowcol.Left, value+1) +
-		mark2(g, ways, p, rowcol.Right, value+1)
-	ways.SetPos(p, sum)
-	return sum
-}
-
-func mark2(g rowcol.Grid[byte], ways rowcol.Grid[int], p rowcol.Pos, dir rowcol.Direction, follow byte) int {
-	p = p.Add(rowcol.Pos(dir))
-	if !ways.IsValidPos(p) {
-		return 0
-	}
-	if g.GetPos(p) != follow {
-		return 0
-	}
-	if cached := ways.GetPos(p); cached > 0 {
-		return cached
-	}
-	if follow == '9' {
-		ways.SetPos(p, 1)
-		return 1
-	}
-	return markDirs2(g, ways, p, follow)
+	p := &P2State{rowcol.NewGrid[int](input.grid.Size())}
+	return Solve(input, p)
 }
