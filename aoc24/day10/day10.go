@@ -15,22 +15,22 @@ func main() {
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day10/example.txt")
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day10/input.txt")
 
-	//	lib.Timed("Part 2", ProcessPart2, "aoc24/day10/example.txt")
-	//	lib.Timed("Part 2", ProcessPart2, "aoc24/day10/input.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day10/example.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day10/input.txt")
 
 	//lib.Profile(1, "day10.pprof", "Part 2", ProcessPart2, "aoc24/dayXX/input.txt")
 }
 
 func ProcessPart1(name string) {
 	fmt.Println("Part 1 input:", name)
-	input := ParseInput(name)
+	input := ReadAndParseInput(name)
 	result := SolvePart1(input)
 	fmt.Println("Result:", result)
 }
 
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
-	input := ParseInput(name)
+	input := ReadAndParseInput(name)
 	result := SolvePart2(input)
 	fmt.Println("Result:", result)
 }
@@ -41,9 +41,12 @@ type Input struct {
 	grid rowcol.Grid[byte]
 }
 
-func ParseInput(name string) *Input {
+func ReadAndParseInput(name string) *Input {
 	lines := lib.ReadLines(name)
-	lines = lib.RemoveEmptyLines(lines)
+	return ParseInput(lines)
+}
+
+func ParseInput(lines []string) *Input {
 	grid := rowcol.NewByteGridFromStrings(lines)
 	return &Input{grid}
 }
@@ -102,7 +105,7 @@ func SolvePart2(input *Input) int {
 	sum := 0
 	for _, th := range trailheads {
 		sum += markDirs2(input.grid, ways, th, byte('0'))
-		visited.Reset(false)
+		ways.Reset(0)
 	}
 	return sum
 }
@@ -114,28 +117,28 @@ func markDirs2(g rowcol.Grid[byte], ways rowcol.Grid[int], p rowcol.Pos, value b
 	if cached := ways.GetPos(p); cached > 0 {
 		return cached
 	}
-	sum := mark2(g, visited, p, rowcol.Up, value+1) +
-		mark2(g, visited, p, rowcol.Down, value+1) +
-		mark2(g, visited, p, rowcol.Left, value+1) +
-		mark2(g, visited, p, rowcol.Right, value+1)
-	visited.SetPos(p, true)
+	sum := mark2(g, ways, p, rowcol.Up, value+1) +
+		mark2(g, ways, p, rowcol.Down, value+1) +
+		mark2(g, ways, p, rowcol.Left, value+1) +
+		mark2(g, ways, p, rowcol.Right, value+1)
+	ways.SetPos(p, sum)
 	return sum
 }
 
 func mark2(g rowcol.Grid[byte], ways rowcol.Grid[int], p rowcol.Pos, dir rowcol.Direction, follow byte) int {
 	p = p.Add(rowcol.Pos(dir))
-	if !visited.IsValidPos(p) {
-		return 0
-	}
-	if visited.GetPos(p) {
+	if !ways.IsValidPos(p) {
 		return 0
 	}
 	if g.GetPos(p) != follow {
 		return 0
 	}
+	if cached := ways.GetPos(p); cached > 0 {
+		return cached
+	}
 	if follow == '9' {
-		visited.SetPos(p, true)
+		ways.SetPos(p, 1)
 		return 1
 	}
-	return markDirs2(g, visited, p, follow)
+	return markDirs2(g, ways, p, follow)
 }

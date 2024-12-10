@@ -92,7 +92,6 @@ func SolvePart2(grid *Grid) int {
 	rows, cols := grid.Size()
 
 	visited := rowcol.NewGrid[DirSet](grid.Size())
-	emptyRow := make([]DirSet, grid.Columns())
 
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
@@ -104,7 +103,7 @@ func SolvePart2(grid *Grid) int {
 				if IsLoop(grid, pos, visited) {
 					nloops++
 				}
-				visited.ResetByRows(emptyRow)
+				visited.Reset(DirSet(0))
 				grid.Set(r, c, '.')
 			}
 		}

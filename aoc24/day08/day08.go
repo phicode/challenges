@@ -5,7 +5,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"strings"
 
 	"github.com/phicode/challenges/lib"
 	"github.com/phicode/challenges/lib/rowcol"
@@ -75,7 +74,7 @@ func ParseInput(name string) *Input {
 func SolvePart1(input *Input) int {
 	rows, cols := input.grid.Size()
 	antinodes := rowcol.NewGrid[byte](rows, cols)
-	antinodes.ResetByRows([]byte(strings.Repeat(".", cols)))
+	antinodes.Reset('.')
 
 	for _, freq := range input.frequencies {
 		for i, antennaA := range freq.antennas {
@@ -110,7 +109,7 @@ func Print(g rowcol.Grid[byte]) {
 func SolvePart2(input *Input) int {
 	rows, cols := input.grid.Size()
 	antinodes := rowcol.NewGrid[byte](rows, cols)
-	antinodes.ResetByRows([]byte(strings.Repeat(".", cols)))
+	antinodes.Reset('.')
 
 	for _, freq := range input.frequencies {
 		for i, antennaA := range freq.antennas {
