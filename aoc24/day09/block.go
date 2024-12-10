@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/phicode/challenges/lib/assert"
 	"math"
 	"strconv"
 	"strings"
+
+	"github.com/phicode/challenges/lib/assert"
 )
 
 type Blocks struct {

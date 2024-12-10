@@ -23,3 +23,14 @@ func AllStringIndexes(s, substr string) []int {
 		offset += index + 1
 	}
 }
+
+func RemoveEmptyLines(lines []string) []string {
+  rv := lines[:0]
+  for _, l := range lines {
+    if len(l) > 0 {
+	  rv = append(rv, l)
+	}
+  }
+  return rv
+}
+

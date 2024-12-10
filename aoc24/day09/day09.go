@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/phicode/challenges/lib"
 	"github.com/phicode/challenges/lib/assert"
 )

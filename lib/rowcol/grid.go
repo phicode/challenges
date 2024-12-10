@@ -134,13 +134,17 @@ func (g *Grid[T]) FindAll(pred func(T) bool) []Pos {
 
 func (g *Grid[T]) Reset(v T) {
 	rows, cols := g.Size()
-	for r := 0; r < rows; r++ {
-		for c := 0; c < cols; c++ {
-			g.Data[r][c] = v
-		}
+	// first row
+	for c := 0; c < cols ; c++ {
+	  g.Data[0][c] = v
+	}
+	// all other rows
+	for r := 1; r < rows; r++ {
+	  copy(g.Data[r], g.Data[0])
 	}
 }
 
+/*
 func (g *Grid[T]) ResetByRows(data []T) {
 	if len(data) != g.Columns() {
 		panic(fmt.Errorf("invalid data size, got=%d, expected=%d", len(data), g.Columns()))
@@ -150,6 +154,7 @@ func (g *Grid[T]) ResetByRows(data []T) {
 		copy(g.Data[r], data)
 	}
 }
+*/
 
 func NewByteGridFromStrings(xs []string) Grid[byte] {
 	g := NewGrid[byte](len(xs), len(xs[0]))

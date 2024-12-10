@@ -39,5 +39,5 @@ cp -r "${template_dir}" "${dest_dir}"
 sed \
   -e "s/#X#/${day}/g" \
   -e "s/#XX#/${xx_day}/g" \
-  "${dest_dir}/dayXX.go" > "${dest_dir}/day${day}.go"
+  "${dest_dir}/dayXX.go" > "${dest_dir}/day${xx_day}.go"
 rm "${dest_dir}/dayXX.go"
