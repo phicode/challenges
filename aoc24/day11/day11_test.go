@@ -51,6 +51,6 @@ func TestSolve(t *testing.T) {
 
 func TestExample(t *testing.T) {
 	in := ParseInput("125 17")
-	assert.Equal(t, 3, SolvePart1(in, 1))
-	assert.Equal(t, 55312, SolvePart1(in, 25))
+	assert.Equal(t, 3, Solve(in, 1))
+	assert.Equal(t, 55312, Solve(in, 25))
 }

@@ -24,14 +24,14 @@ func main() {
 func ProcessPart1(name string) {
 	fmt.Println("Part 1 input:", name)
 	input := ReadAndParseInput(name)
-	result := SolvePart1(input, 25)
+	result := Solve(input, 25)
 	fmt.Println("Result:", result)
 }
 
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
 	input := ReadAndParseInput(name)
-	result := SolvePart1(input, 75)
+	result := Solve(input, 75)
 	fmt.Println("Result:", result)
 }
 
@@ -54,10 +54,7 @@ func ParseInput(line string) Input {
 
 ////////////////////////////////////////////////////////////
 
-func SolvePart1_25(input Input) int {
-	return SolvePart1(input, 25)
-}
-func SolvePart1(input Input, blinks int) int {
+func Solve(input Input, blinks int) int {
 	cache := make(map[Key]int)
 	sum := 0
 	for _, n := range input.Numbers {
@@ -77,7 +74,6 @@ func solve(cache map[Key]int, num, depth, maxDepth int) int {
 	if v, ok := cache[key]; ok {
 		return v
 	}
-
 	a, b := next(num)
 	if depth == maxDepth {
 		stones := 1
@@ -91,7 +87,6 @@ func solve(cache map[Key]int, num, depth, maxDepth int) int {
 	if b != -1 {
 		stones += solve(cache, b, depth+1, maxDepth)
 	}
-
 	cache[key] = stones
 	return stones
 }
@@ -113,6 +108,7 @@ func next(num int) (int, int) {
 	}
 	return num * 2024, -1
 }
+
 func digits(num int) int {
 	d := 0
 	for num > 0 {
@@ -120,10 +116,4 @@ func digits(num int) int {
 		d++
 	}
 	return d
-}
-
-////////////////////////////////////////////////////////////
-
-func SolvePart2(input Input) int {
-	return 0
 }
