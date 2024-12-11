@@ -19,6 +19,6 @@ const (
 
 func Log(v int, a ...any) {
 	if v <= flagVerbose {
-		fmt.Println(a)
+		fmt.Println(a...)
 	}
 }
