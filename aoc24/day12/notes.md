@@ -11,3 +11,14 @@ Part 1: 732.016µs
 ```
 
 # Notes
+
+```text
+AAAAAA
+AAABBA
+AAABBA
+ABBAAA
+ABBAAA
+AAAAAA
+```
+
+811292 is too high
