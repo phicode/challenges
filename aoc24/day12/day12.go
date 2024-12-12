@@ -13,7 +13,7 @@ import (
 func main() {
 	flag.Parse()
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day12/example.txt")
-	//lib.Timed("Part 1", ProcessPart1, "aoc24/day12/input.txt")
+	lib.Timed("Part 1", ProcessPart1, "aoc24/day12/input.txt")
 	//
 	//lib.Timed("Part 2", ProcessPart2, "aoc24/day12/example.txt")
 	//lib.Timed("Part 2", ProcessPart2, "aoc24/day12/input.txt")
@@ -87,15 +87,63 @@ func (s *State) followPlantDirs(plant byte, ps []rowcol.Pos, p rowcol.Pos) []row
 
 func SolvePart1(input Input) int {
 	s := State{grid: input.grid, visited: rowcol.NewGrid[bool](input.grid.Size())}
+	total := 0
 	for pos := range s.visited.PosIterator() {
 		if s.visited.GetPos(pos) {
 			continue
 		}
 		plant, ps := s.follow(pos)
-		fmt.Println("Plant:", rune(plant), "area", len(ps))
+		peri := perimeter(ps, s.grid, plant)
+		//fmt.Printf("Plant: %c ; area: %d, perimeter: %d\n", plant, len(ps), peri)
+		total += peri * len(ps)
 	}
+	return total
+}
 
-	return 0
+func perimeter(ps []rowcol.Pos, grid rowcol.Grid[byte], plant byte) int {
+	peri := 0
+	for _, p := range ps {
+		peri += perimeterContribution(p, grid, plant)
+	}
+	return peri
+}
+
+//func perimeter(ps []rowcol.Pos, grid rowcol.Grid[byte], plant byte) int {
+//	_min := rowcol.MinPos(ps)
+//	peri := perimeterContribution(_min, grid, plant)
+//	//assert.True(peri >= 1 && peri < 4)
+//	cur, notDir := next(rowcol.Up, _min, grid, plant)
+//	for cur != _min {
+//		contr := perimeterContribution(cur, grid, plant)
+//		//assert.True(contr > 0 && contr < 4)
+//		peri += contr
+//		cur, notDir = next(notDir, cur, grid, plant)
+//	}
+//	return peri
+//}
+
+//var nextDirections = []rowcol.Direction{rowcol.Right, rowcol.Down, rowcol.Left, rowcol.Up}
+
+//	func next(notDir rowcol.Direction, pos rowcol.Pos, grid rowcol.Grid[byte], plant byte) (rowcol.Pos, rowcol.Direction) {
+//		for _, dir := range nextDirections {
+//			test := pos.AddDir(dir)
+//			if dir != notDir && grid.IsValidPos(test) && grid.GetPos(test) == plant {
+//				return test, dir.Reverse()
+//			}
+//		}
+//		panic("no position to follow found")
+//	}
+func perimeterContribution(pos rowcol.Pos, grid rowcol.Grid[byte], plant byte) int {
+	sameNeighbors := 0
+	for _, dir := range rowcol.Directions {
+		test := pos.AddDir(dir)
+		if grid.IsValidPos(test) && grid.GetPos(test) == plant {
+			sameNeighbors++
+		}
+	}
+	// 4 same neighbors => plant is fully surounded => no perimeter contribution
+	// 3 plant has 1 neighbors on 3 sided
+	return 4 - sameNeighbors
 }
 
 ////////////////////////////////////////////////////////////
