@@ -1,6 +1,9 @@
 package rowcol
 
-import "fmt"
+import (
+	"fmt"
+	"iter"
+)
 
 type Grid[T any] struct {
 	Data [][]T
@@ -135,12 +138,25 @@ func (g *Grid[T]) FindAll(pred func(T) bool) []Pos {
 func (g *Grid[T]) Reset(v T) {
 	rows, cols := g.Size()
 	// first row
-	for c := 0; c < cols ; c++ {
-	  g.Data[0][c] = v
+	for c := 0; c < cols; c++ {
+		g.Data[0][c] = v
 	}
 	// all other rows
 	for r := 1; r < rows; r++ {
-	  copy(g.Data[r], g.Data[0])
+		copy(g.Data[r], g.Data[0])
+	}
+}
+
+func (g *Grid[T]) PosIterator() iter.Seq[Pos] {
+	rows, cols := g.Size()
+	return func(yield func(Pos) bool) {
+		for r := 0; r < rows; r++ {
+			for c := 0; c < cols; c++ {
+				if !yield(Pos{r, c}) {
+					return
+				}
+			}
+		}
 	}
 }
 
