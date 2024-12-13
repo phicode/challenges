@@ -6,7 +6,7 @@ func Lcm(a, b int) int {
 }
 
 // LcmN computes the Least Common Multiply of multiple values.
-func LcmN(xs []int) int {
+func LcmN(xs ...int) int {
 	l := xs[0]
 	for i := 1; i < len(xs); i++ {
 		l = (l * xs[i]) / Gcd(l, xs[i])
