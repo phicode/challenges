@@ -22,14 +22,14 @@ func main() {
 
 func ProcessPart1(name string) {
 	fmt.Println("Part 1 input:", name)
-	input := ParseInput(name)
+	input := ReadAndParseInput(name)
 	result := SolvePart1(input)
 	fmt.Println("Result:", result)
 }
 
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
-	input := ParseInput(name)
+	input := ReadAndParseInput(name)
 	result := SolvePart2(input)
 	fmt.Println("Result:", result)
 }
@@ -39,9 +39,12 @@ func ProcessPart2(name string) {
 type Input struct {
 }
 
-func ParseInput(name string) Input {
+func ReadAndParseInput(name string) Input {
 	lines := lib.ReadLines(name)
-	_ = lines
+	return ParseInput(lines)
+}
+
+func ParseInput(lines []string) Input {
 	return Input{}
 }
 
