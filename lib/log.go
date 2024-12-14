@@ -5,10 +5,10 @@ import (
 	"fmt"
 )
 
-var flagVerbose int
+var LogLevel int
 
 func init() {
-	flag.IntVar(&flagVerbose, "v", 0, "verbosity level (0=Info; 1=Debug; 2=Trace)")
+	flag.IntVar(&LogLevel, "v", 0, "log level (0=Info; 1=Debug; 2=Trace)")
 }
 
 const (
@@ -18,7 +18,7 @@ const (
 )
 
 func Log(v int, a ...any) {
-	if v <= flagVerbose {
+	if v <= LogLevel {
 		fmt.Println(a...)
 	}
 }

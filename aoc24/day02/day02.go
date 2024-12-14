@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/math"
 )
 
 const (
@@ -76,7 +77,7 @@ func safeP1(diffs []int) bool {
 	s := sign(diffs[0])
 	for i := 0; i < len(diffs); i++ {
 		d := diffs[i]
-		ad := lib.AbsInt(d)
+		ad := math.AbsInt(d)
 		if sign(diffs[i]) != s || ad < MinDiff || ad > MaxDiff {
 			return false
 		}
@@ -153,7 +154,7 @@ func (r Report) IsSafeP2() bool {
 	l := len(ds) - 1
 	for i := 0; i < l; i++ {
 		c := ds[i] + ds[i+1]
-		ac := lib.AbsInt(c)
+		ac := math.AbsInt(c)
 		if ac < MinDiff || ac > MaxDiff {
 			continue
 		}

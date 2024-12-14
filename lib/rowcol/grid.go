@@ -9,13 +9,6 @@ type Grid[T any] struct {
 	Data [][]T
 }
 
-//func (g *Grid[byte]) Print() {
-//	for _, row := range g.Data {
-//		fmt.Println(string(row))
-//	}
-//	fmt.Println()
-//}
-
 func (g *Grid[T]) Rows() int                  { return len(g.Data) }
 func (g *Grid[T]) Columns() int               { return len(g.Data[0]) }
 func (g *Grid[T]) Size() (rows int, cols int) { return g.Rows(), g.Columns() }
@@ -159,18 +152,6 @@ func (g *Grid[T]) PosIterator() iter.Seq[Pos] {
 		}
 	}
 }
-
-/*
-func (g *Grid[T]) ResetByRows(data []T) {
-	if len(data) != g.Columns() {
-		panic(fmt.Errorf("invalid data size, got=%d, expected=%d", len(data), g.Columns()))
-	}
-	rows := g.Rows()
-	for r := 0; r < rows; r++ {
-		copy(g.Data[r], data)
-	}
-}
-*/
 
 func NewByteGridFromStrings(xs []string) Grid[byte] {
 	g := NewGrid[byte](len(xs), len(xs[0]))

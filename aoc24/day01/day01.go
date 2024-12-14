@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/math"
 )
 
 func main() {
@@ -54,7 +55,7 @@ func SolvePart1(input Input) int {
 	sort.Ints(input.B)
 	total := 0
 	for i := 0; i < len(input.A); i++ {
-		dist := lib.AbsInt(input.A[i] - input.B[i])
+		dist := math.AbsInt(input.A[i] - input.B[i])
 		total += dist
 	}
 	return total
