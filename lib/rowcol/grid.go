@@ -103,7 +103,7 @@ func Reduce[T any, E any](g *Grid[T], acc E, fn func(E, T) E) E {
 	return acc
 }
 
-func (g *Grid[T]) Find(pred func(T) bool) (Pos, bool) {
+func (g *Grid[T]) FindFirst(pred func(T) bool) (Pos, bool) {
 	rows, cols := g.Size()
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
@@ -137,6 +137,19 @@ func (g *Grid[T]) Reset(v T) {
 	// all other rows
 	for r := 1; r < rows; r++ {
 		copy(g.Data[r], g.Data[0])
+	}
+}
+
+func (g *Grid[T]) Iterator() iter.Seq2[Pos, T] {
+	rows, cols := g.Size()
+	return func(yield func(Pos, T) bool) {
+		for r := 0; r < rows; r++ {
+			for c := 0; c < cols; c++ {
+				if !yield(Pos{r, c}, g.Data[r][c]) {
+					return
+				}
+			}
+		}
 	}
 }
 

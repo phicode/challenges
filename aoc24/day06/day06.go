@@ -54,7 +54,7 @@ func ParseInput(name string) *Grid {
 ////////////////////////////////////////////////////////////
 
 func SolvePart1(grid *Grid) int {
-	pos, ok := grid.Find(func(v byte) bool { return v == '^' })
+	pos, ok := grid.FindFirst(func(v byte) bool { return v == '^' })
 	assert.True(ok)
 	grid.SetPos(pos, '.')
 
@@ -84,7 +84,7 @@ func SolvePart1(grid *Grid) int {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(grid *Grid) int {
-	pos, ok := grid.Find(func(v byte) bool { return v == '^' })
+	pos, ok := grid.FindFirst(func(v byte) bool { return v == '^' })
 	assert.True(ok)
 	grid.SetPos(pos, '.')
 
