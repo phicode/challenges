@@ -17,7 +17,7 @@ func main() {
 	lib.Timed("Part 2", ProcessPart2, "aoc24/day#XX#/example.txt")
 	lib.Timed("Part 2", ProcessPart2, "aoc24/day#XX#/input.txt")
 
-	//lib.Profile(1, "day#XX#.pprof", "Part 2", ProcessPart2, "aoc24/dayXX/input.txt")
+	//lib.Profile(1, "day#XX#.pprof", "Part 2", ProcessPart2, "aoc24/day#XX#/input.txt")
 }
 
 func ProcessPart1(name string) {

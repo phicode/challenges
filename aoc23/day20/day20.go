@@ -100,7 +100,7 @@ func AnalyseRepetitions(high [][]int) int {
 		}
 		reps = append(reps, diff1)
 	}
-	return math.LcmN(reps)
+	return math.LcmN(reps...)
 }
 
 ////////////////////////////////////////////////////////////

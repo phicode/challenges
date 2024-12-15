@@ -12,7 +12,10 @@ package_dirs := `go list -f '{{.Dir}}' github.com/phicode/challenges/...`
 @help:
   just --list
 
-all: test
+all: build test
+
+build:
+  go build github.com/phicode/challenges/...
 
 test:
   go test github.com/phicode/challenges/...

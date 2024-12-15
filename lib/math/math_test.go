@@ -19,6 +19,6 @@ func TestLcm(t *testing.T) {
 }
 
 func TestLcmN(t *testing.T) {
-	assert.Equal(t, 105, LcmN([]int{3, 5, 7}))
-	assert.Equal(t, 24, LcmN([]int{2, 6, 8}))
+	assert.Equal(t, 105, LcmN(3, 5, 7))
+	assert.Equal(t, 24, LcmN(2, 6, 8))
 }

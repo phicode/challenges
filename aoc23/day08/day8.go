@@ -155,7 +155,7 @@ func (m *Map) TraverseGhost() interface{} {
 			break
 		}
 	}
-	return math.LcmN(endIndixes)
+	return math.LcmN(endIndixes...)
 }
 
 func (m *Map) AllNodes() []*Node {
