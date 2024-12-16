@@ -3,35 +3,25 @@
 ```text
 Part 1 input: aoc24/day16/example.txt
 Result: 7036
-Part 1: 249.723µs
+Part 1: 293.235µs
 
 Part 1 input: aoc24/day16/input.txt
 Result: 92432
-Part 1: 40.25406ms
+Part 1: 46.719426ms
+
+Part 2 input: aoc24/day16/example.txt
+Result: 45
+Part 2: 477.213µs
+
+Part 2 input: aoc24/day16/input.txt
+Result: 458
+Part 2: 47.924928ms
 ```
 
 # Notes
-```text
-O=1000 =7x = 7000 
-1=1 = 29x  = 29
-###############
-#.......#....^#
-#.#.###.#.###^#
-#.....#.#...#^#
-#.###.#####.#^#
-#.#.#.......#^#
-#.#.#####.###^#
-#....^>>>>>>#^#
-###.#^#####v#^#
-#...#^....#v#^#
-#.#.#^###.#v#^#
-#^>>>>#...#v#^#
-#^###.#.#.#v#^#
-#>..#.....#v>>#
-###############
-```
 
 Example solution
+
 ```text
 ###############
 #.......#....E#
@@ -51,6 +41,7 @@ Example solution
 ```
 
 Part 2
+
 ```text
     01234567890123
  0  ###############
@@ -69,10 +60,3 @@ Part 2
 13  #O..#.....#OOO#
     ###############
 ```
-
-inverse split positions:
-(5,7) >
-(3,9)
-
-
-graph nodes: 416

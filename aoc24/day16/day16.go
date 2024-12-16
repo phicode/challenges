@@ -14,12 +14,10 @@ import (
 
 func main() {
 	flag.Parse()
-	//lib.Timed("Part 1", ProcessPart1, "aoc24/day16/example.txt")
-	//lib.Timed("Part 1", ProcessPart1, "aoc24/day16/input.txt")
-	//
+	lib.Timed("Part 1", ProcessPart1, "aoc24/day16/example.txt")
+	lib.Timed("Part 1", ProcessPart1, "aoc24/day16/input.txt")
 	lib.Timed("Part 2", ProcessPart2, "aoc24/day16/example.txt")
-	//lib.Timed("Part 2", ProcessPart2, "aoc24/day16/input.txt")
-
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day16/input.txt")
 	//lib.Profile(1, "day16.pprof", "Part 2", ProcessPart2, "aoc24/day16/input.txt")
 }
 
@@ -98,17 +96,19 @@ func ParseInput(lines []string) Input {
 			continue
 		}
 		for _, facing := range rowcol.Directions {
+			// add moves
 			a := NodeKey{Facing: facing, P: p}
-			for _, move := range rowcol.Directions {
-				if move == facing.Reverse() {
-					continue // no 180 degree turns
-				}
-				next := p.AddDir(move)
-				if grid.IsValidPos(next) && grid.GetPos(next) != '#' {
-					b := NodeKey{Facing: move, P: next}
-					graph.AddEdge(a, b)
-				}
+			next := p.AddDir(facing)
+			if grid.IsValidPos(next) && grid.GetPos(next) != '#' {
+				b := NodeKey{Facing: facing, P: next}
+				graph.AddEdge(a, b)
 			}
+
+			// add turns
+			left := NodeKey{Facing: facing.Left(), P: p}
+			right := NodeKey{Facing: facing.Right(), P: p}
+			graph.AddEdge(a, left)
+			graph.AddEdge(a, right)
 		}
 	}
 	//fmt.Println("graph nodes:", len(graph.Nodes))
@@ -162,7 +162,7 @@ func score(a, b NodeKey) int {
 	if a.Facing == b.Facing {
 		return 1
 	}
-	return 1001
+	return 1000
 }
 
 ////////////////////////////////////////////////////////////
@@ -188,33 +188,26 @@ func SolvePart2(input Input) int {
 			}
 		}
 	}
-	positions := make(map[rowcol.Pos]bool)
+	positions := make(map[NodeKey]bool)
 	follow(minScore, positions)
-	fmt.Println("positions: ", len(positions))
+	ps := make(map[rowcol.Pos]bool)
+	for pos := range positions {
+		ps[pos.P] = true
+	}
+	//fmt.Println("nodekeys: ", len(positions))
+	//fmt.Println("positions: ", len(ps))
 
-	//paths := minScore.GetPaths()
-	//g := input.grid.Copy()
-	//for _, path := range paths {
-	//	for i, n := range path {
-	//		key := n.Value
-	//		fmt.Printf("Position %d: %v, facing: %v\n", i, key.P, key.Facing)
-	//		g.SetPos(key.P, key.Facing.PrintChar())
-	//	}
-	//}
-	//rowcol.PrintByteGrid(&g)
-
-	return minScore.Distance
+	return len(ps)
 }
 
-func follow(node *graphs.NodeAll[NodeKey], positions map[rowcol.Pos]bool) {
-	p := node.Value.P
-	if positions[p] {
+func follow(node *graphs.NodeAll[NodeKey], positions map[NodeKey]bool) {
+	if positions[node.Value] {
 		return
 	}
-	positions[p] = true
-	if len(node.Prev) > 1 {
-		fmt.Println("debug")
-	}
+	positions[node.Value] = true
+	//if len(node.Prev) > 1 {
+	//	fmt.Printf("split @ %v\n", node.Value)
+	//}
 	for _, prev := range node.Prev {
 		follow(prev, positions)
 	}
