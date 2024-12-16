@@ -1,7 +1,13 @@
 # Solution
 
 ```text
+Part 1 input: aoc24/day16/example.txt
+Result: 7036
+Part 1: 249.723µs
 
+Part 1 input: aoc24/day16/input.txt
+Result: 92432
+Part 1: 40.25406ms
 ```
 
 # Notes
@@ -43,3 +49,30 @@ Example solution
 #S..#.....#>>^#
 ###############
 ```
+
+Part 2
+```text
+    01234567890123
+ 0  ###############
+ 1  #.......#....O#
+ 2  #.#.###.#.###O#
+ 3  #.....#.#...#O#
+ 4  #.###.#####.#O#
+ 5  #.#.#.......#O#
+ 6  #.#.#####.###O#
+ 7  #..OOOOOOOOO#O#
+ 8  ###O#O#####O#O#
+ 9  #OOO#O....#O#O#
+10  #O#O#O###.#O#O#
+11  #OOOOO#...#O#O#
+12  #O###.#.#.#O#O#
+13  #O..#.....#OOO#
+    ###############
+```
+
+inverse split positions:
+(5,7) >
+(3,9)
+
+
+graph nodes: 416

@@ -3,6 +3,8 @@ package lib
 import (
 	"math"
 	"slices"
+
+	"github.com/phicode/challenges/lib/assert"
 )
 
 func Dijkstra[T comparable](data []T, start func(a T) bool, neigh func(t T) []T) map[T]*Node[T] {
@@ -13,14 +15,17 @@ func Dijkstra[T comparable](data []T, start func(a T) bool, neigh func(t T) []T)
 func DijkstraWithCost[T comparable](data []T, start func(a T) bool, neigh func(t T) []T, cost func(T, T) int) map[T]*Node[T] {
 	nodes := make([]*Node[T], len(data))
 	nodeByValue := make(map[T]*Node[T])
+	nStart := 0
 	for i, d := range data {
 		node := &Node[T]{Value: d, Distance: math.MaxInt, idx: i}
 		nodes[i] = node
 		nodeByValue[d] = node
 		if start(d) {
 			nodes[i].Distance = 0
+			nStart++
 		}
 	}
+	assert.True(nStart > 0)
 
 	q := NewHeapWithUpdater[*Node[T]](nodes, nodeIsLess[T], updateNodeIndex[T])
 
@@ -34,6 +39,7 @@ func DijkstraWithCost[T comparable](data []T, start func(a T) bool, neigh func(t
 				continue
 			}
 			alt := u.Distance + cost(u.Value, v.Value)
+			assert.False(alt <= 0)
 			if alt < v.Distance {
 				v.Prev = u
 				v.Distance = alt
