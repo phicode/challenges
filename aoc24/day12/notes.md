@@ -22,3 +22,39 @@ AAAAAA
 ```
 
 811292 is too high
+
+
+```text
+Edge Combinations for diagonal between a and X
+  ab
+  cX
+
+- 2 of a, b, c are on
+- all 3 are off
+- only diagonal is on
+  ..  XX  X.  .X  X.
+  .X  .X  XX  XX  .X
+
+the other 3 cases do not count as an edge
+  .X  ..  XX
+  .X  XX  XX 
+
+a b c e
+0 0 0 1
+0 0 1 0
+0 1 0 0
+0 1 1 1
+1 0 0 1
+1 0 1 1
+1 1 0 1
+1 1 1 0
+
+edge = ! (
+             (!a && !b &&  c) ||
+             (!a &&  b && !c) ||
+             (a && b && c)
+          ) 
+
+edge = (!a && !b && !c) ||
+       (!a &&  b &&  c) 
+```

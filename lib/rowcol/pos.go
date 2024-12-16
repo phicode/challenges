@@ -55,6 +55,21 @@ func (d Direction) String() string {
 	}
 }
 
+func (d Direction) PrintChar() byte {
+	switch d {
+	case Right:
+		return '>'
+	case Left:
+		return '<'
+	case Up:
+		return '^'
+	case Down:
+		return 'v'
+	default:
+		panic("direction does not have a print character")
+	}
+}
+
 var (
 	Left      = Direction{Row: 0, Col: -1}
 	Right     = Direction{Row: 0, Col: +1}

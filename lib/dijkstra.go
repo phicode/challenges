@@ -2,6 +2,7 @@ package lib
 
 import (
 	"math"
+	"slices"
 )
 
 func Dijkstra[T comparable](data []T, start func(a T) bool, neigh func(t T) []T) map[T]*Node[T] {
@@ -51,6 +52,17 @@ type Node[T any] struct {
 	Prev     *Node[T]
 	idx      int
 	visited  bool
+}
+
+func (k *Node[T]) GetPath() []*Node[T] {
+	var path []*Node[T]
+	cur := k
+	for cur != nil {
+		path = append(path, cur)
+		cur = cur.Prev
+	}
+	slices.Reverse(path)
+	return path
 }
 
 func nodeIsLess[T any](a, b *Node[T]) bool {

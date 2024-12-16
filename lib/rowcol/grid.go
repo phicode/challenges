@@ -3,6 +3,8 @@ package rowcol
 import (
 	"fmt"
 	"iter"
+
+	"github.com/phicode/challenges/lib/assert"
 )
 
 type Grid[T any] struct {
@@ -113,6 +115,12 @@ func (g *Grid[T]) FindFirst(pred func(T) bool) (Pos, bool) {
 		}
 	}
 	return Pos{}, false
+}
+
+func (g *Grid[T]) MustFindFirst(pred func(T) bool) Pos {
+	p, ok := g.FindFirst(pred)
+	assert.True(ok)
+	return p
 }
 
 func (g *Grid[T]) FindAll(pred func(T) bool) []Pos {
