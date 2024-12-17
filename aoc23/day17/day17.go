@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/graphs"
 	"github.com/phicode/challenges/lib/rowcol"
 )
 
@@ -206,12 +207,12 @@ func Follow(g *Grid, nodes map[NodeKey]*Node) {
 		}
 		return c
 	}
-	paths := lib.DijkstraWithCost(nodeKeys, start, neighbors, cost)
+	paths := graphs.DijkstraWithCost(nodeKeys, start, neighbors, cost)
 	heatLoss := VisitPart2EndNodes(g, nodes, paths)
 	fmt.Println("heat loss:", heatLoss)
 }
 
-func VisitPart2EndNodes(g *Grid, nodes map[NodeKey]*Node, paths map[NodeKey]*lib.Node[NodeKey]) int {
+func VisitPart2EndNodes(g *Grid, nodes map[NodeKey]*Node, paths map[NodeKey]*graphs.Node[NodeKey]) int {
 	rows, cols := g.Rows(), g.Columns()
 	minHeatLoss := math.MaxInt
 	for k := range nodes {
@@ -231,12 +232,12 @@ func VisitPart2EndNodes(g *Grid, nodes map[NodeKey]*Node, paths map[NodeKey]*lib
 	return minHeatLoss
 }
 
-func DescribePath(end *lib.Node[NodeKey], nodes map[NodeKey]*Node) {
+func DescribePath(end *graphs.Node[NodeKey], nodes map[NodeKey]*Node) {
 	if end.Prev == nil {
 		fmt.Println("found unvisited end node")
 		return
 	}
-	var path []*lib.Node[NodeKey]
+	var path []*graphs.Node[NodeKey]
 	path = append(path, end)
 	current := end
 	for !current.Value.Pos.IsZero() { // start node

@@ -10,8 +10,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/phicode/challenges/lib"
 	"github.com/phicode/challenges/lib/assets"
+	"github.com/phicode/challenges/lib/graphs"
 )
 
 const MEMOIZATION = true
@@ -512,7 +512,7 @@ func (s *Solver) Rounds(minutes int) {
 // - calculate shortest path to all valves
 // - calculate which valve to open next
 // - plot path
-func (s *Solver) getDistances(pos *Valve) map[string]*lib.Node[string] {
+func (s *Solver) getDistances(pos *Valve) map[string]*graphs.Node[string] {
 	var names []string
 	for _, v := range s.Valves {
 		names = append(names, v.Name)
@@ -528,7 +528,7 @@ func (s *Solver) getDistances(pos *Valve) map[string]*lib.Node[string] {
 		}
 		return neighs
 	}
-	dijkstra := lib.Dijkstra(names, isStart, neighbors)
+	dijkstra := graphs.Dijkstra(names, isStart, neighbors)
 
 	fmt.Println(len(dijkstra))
 	return dijkstra
@@ -584,7 +584,7 @@ type ShortestPaths struct {
 	// value:
 	//   key: target node
 	//   value: lib.Node of target node
-	shortest map[string]map[string]*lib.Node[string]
+	shortest map[string]map[string]*graphs.Node[string]
 	// key: source node
 	// value:
 	//   key: target node
@@ -614,7 +614,7 @@ func (p *ShortestPaths) GetDistanceTo(src, dst string) int {
 	return p.DistanceTo[src][dst]
 }
 
-func distanceTo(start string, node *lib.Node[string]) int {
+func distanceTo(start string, node *graphs.Node[string]) int {
 	var dist int
 	for node.Value != start {
 		dist += node.Distance
@@ -638,12 +638,12 @@ func NewShortestPaths(vs Valves) *ShortestPaths {
 	}
 	sp := &ShortestPaths{
 		vs:         vs,
-		shortest:   make(map[string]map[string]*lib.Node[string]),
+		shortest:   make(map[string]map[string]*graphs.Node[string]),
 		DistanceTo: make(map[string]map[string]int),
 	}
 	for _, v := range vs {
 		isStart := func(n string) bool { return n == v.Name }
-		sp.shortest[v.Name] = lib.Dijkstra(names, isStart, neighbors)
+		sp.shortest[v.Name] = graphs.Dijkstra(names, isStart, neighbors)
 		sp.CalcDistanceTo(v.Name)
 	}
 	return sp

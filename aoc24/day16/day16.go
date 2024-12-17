@@ -132,8 +132,8 @@ func SolvePart1(input Input) int {
 	}
 	var cost func(NodeKey, NodeKey) int = score
 	// map[NodeKey]*lib.Node[NodeKey]
-	withCost := lib.DijkstraWithCost(data, start, neigh, cost)
-	var minScore *lib.Node[NodeKey]
+	withCost := graphs.DijkstraWithCost(data, start, neigh, cost)
+	var minScore *graphs.Node[NodeKey]
 	for k, v := range withCost {
 		if k.P == endPos {
 			if minScore == nil || v.Distance < minScore.Distance {
