@@ -97,5 +97,42 @@ func IsPossible(design []byte, patterns [][]byte) bool {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(input Input) int {
-	return 0
+	total := 0
+	for _, design := range input.Designs {
+		c := CountPossible(design, input.Patterns)
+		//fmt.Println("Design", string(design), "count:", c)
+		total += c
+	}
+	return total
+}
+
+func CountPossible(design []byte, patterns [][]byte) int {
+	cache := make(map[CacheKey]int)
+	return _CountPossible(0, design, patterns, cache)
+}
+
+type CacheKey int // the position of
+
+func _CountPossible(start int, design []byte, patterns [][]byte, cache map[CacheKey]int) int {
+	key := CacheKey(start)
+	if x, found := cache[key]; found {
+		return x
+	}
+	count := 0
+	for _, pattern := range patterns {
+		ld := len(design) - start
+		lp := len(pattern)
+		if lp > ld {
+			continue
+		}
+		if lp == ld && bytes.Equal(design[start:], pattern) {
+			count++
+			continue
+		}
+		if lp < ld && bytes.Equal(design[start:start+lp], pattern) {
+			count += _CountPossible(start+lp, design, patterns, cache)
+		}
+	}
+	cache[key] = count
+	return count
 }
