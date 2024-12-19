@@ -27,7 +27,7 @@ func TestCPU_Example1(t *testing.T) {
 		Reg:     [3]int{0, 0, 9},
 		Program: []int{2, 6},
 	}
-	cpu.Run()
+	cpu.Run(false)
 	assert.Equal(t, 1, cpu.Reg[RegB])
 }
 
@@ -37,7 +37,7 @@ func TestCPU_Example2(t *testing.T) {
 		Reg:     [3]int{10, 0, 0},
 		Program: []int{5, 0, 5, 1, 5, 4},
 	}
-	cpu.Run()
+	cpu.Run(false)
 	assert.Equal(t, []int{0, 1, 2}, cpu.Output)
 }
 
@@ -47,7 +47,7 @@ func TestCPU_Example3(t *testing.T) {
 		Reg:     [3]int{2024, 0, 0},
 		Program: []int{0, 1, 5, 4, 3, 0},
 	}
-	cpu.Run()
+	cpu.Run(false)
 	expected := []int{4, 2, 5, 6, 7, 7, 7, 7, 3, 1, 0}
 	assert.Equal(t, expected, cpu.Output)
 	assert.Equal(t, 0, cpu.Reg[RegA])
@@ -59,7 +59,7 @@ func TestCPU_Example4(t *testing.T) {
 		Reg:     [3]int{0, 29, 0},
 		Program: []int{1, 7},
 	}
-	cpu.Run()
+	cpu.Run(false)
 	assert.Equal(t, 26, cpu.Reg[RegB])
 }
 
@@ -69,6 +69,12 @@ func TestCPU_Example5(t *testing.T) {
 		Reg:     [3]int{0, 2024, 43690},
 		Program: []int{4, 0},
 	}
-	cpu.Run()
+	cpu.Run(false)
 	assert.Equal(t, 44354, cpu.Reg[RegB])
+}
+
+func TestX(t *testing.T) {
+	assert.Equal(t, 1, pow2(0))
+	assert.Equal(t, 2, pow2(1))
+	assert.Equal(t, 4, pow2(2))
 }
