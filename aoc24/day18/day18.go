@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"sort"
 
 	"github.com/phicode/challenges/lib"
 	"github.com/phicode/challenges/lib/assert"
@@ -140,23 +141,38 @@ func freeNeighbors(grid rowcol.Grid[byte], p rowcol.Pos) []rowcol.Pos {
 
 ////////////////////////////////////////////////////////////
 
-func SolvePart2(input Input, gridSize, numBytes int) string {
-	assert.True(numBytes <= len(input.Coordinates))
-	grid := rowcol.NewGrid[byte](gridSize, gridSize)
+func SolvePart2(input Input, gridSize, startBytes int) string {
+	assert.True(startBytes <= len(input.Coordinates))
+
+	solver := p2in{
+		in:         input,
+		gridSize:   gridSize,
+		startBytes: startBytes,
+	}
+	search := sort.Search(len(input.Coordinates), solver.test)
+	// search returns the first index where the predicate no longer holds, we need
+	// the coordinate of the last possible combination
+	search--
+	assert.True(search > 0)
+	c := input.Coordinates[search]
+	return fmt.Sprintf("%d,%d", c.Col, c.Row)
+}
+
+type p2in struct {
+	in         Input
+	gridSize   int
+	startBytes int
+}
+
+func (self p2in) test(x int) bool {
+	if x <= self.startBytes {
+		return false
+	}
+	grid := rowcol.NewGrid[byte](self.gridSize, self.gridSize)
 	grid.Reset('.')
-	for i := 0; i < numBytes; i++ {
-		grid.SetPos(input.Coordinates[i], '#')
+	for i := 0; i < x; i++ {
+		grid.SetPos(self.in.Coordinates[i], '#')
 	}
 	_, ok := ShortestPath(grid)
-	assert.True(ok)
-	numCoords := len(input.Coordinates)
-	for i := numBytes; i < numCoords; i++ {
-		c := input.Coordinates[i]
-		grid.SetPos(c, '#')
-		if _, ok := ShortestPath(grid); !ok {
-			return fmt.Sprintf("%d,%d", c.Col, c.Row)
-		}
-
-	}
-	panic("no solution found")
+	return !ok
 }

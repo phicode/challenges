@@ -11,11 +11,11 @@ Part 1: 3.218796ms
 
 Part 2 input: aoc24/day18/example.txt
 Result: 6,1
-Part 2: 146.458µs
+Part 2: 50.876µs
 
 Part 2 input: aoc24/day18/input.txt
 Result: 46,18
-Part 2: 2.527496394s
+Part 2: 4.046071ms
 ```
 
 # Notes
