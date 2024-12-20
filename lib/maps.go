@@ -25,3 +25,16 @@ func GetMapKeys[K comparable, V any](m map[K]V, keys []K) []V {
 	}
 	return values
 }
+
+type Entry[K comparable, V any] struct {
+	Key   K
+	Value V
+}
+
+func MapEntries[K comparable, V any](m map[K]V) []Entry[K, V] {
+	var rv []Entry[K, V]
+	for k, v := range m {
+		rv = append(rv, Entry[K, V]{Key: k, Value: v})
+	}
+	return rv
+}
