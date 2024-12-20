@@ -8,6 +8,14 @@ Part 1: 56.637µs
 Part 1 input: aoc24/day20/input.txt
 Result: 1406
 Part 1: 424.264µs
+
+Part 2 input: aoc24/day20/example.txt
+Result: 0
+Part 2: 362.557µs
+
+Part 2 input: aoc24/day20/input.txt
+Result: 1006101
+Part 2: 55.211295ms
 ```
 
 # Notes

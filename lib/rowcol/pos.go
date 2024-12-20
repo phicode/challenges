@@ -6,6 +6,13 @@ type Pos struct {
 	Row, Col int
 }
 
+func PosRC(r, c int) Pos {
+	return Pos{r, c}
+}
+func PosXY(x, y int) Pos {
+	return Pos{y, x}
+}
+
 func (p Pos) AddDir(dir Direction) Pos {
 	return Pos{Row: p.Row + dir.Row, Col: p.Col + dir.Col}
 }

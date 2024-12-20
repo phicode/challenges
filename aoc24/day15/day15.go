@@ -82,7 +82,7 @@ func SolvePart1(input Input) int {
 	}
 
 	if lib.LogLevel >= lib.LogDebug {
-		rowcol.PrintByteGrid(&input.grid)
+		rowcol.PrintByteGrid(input.grid)
 	}
 
 	total := 0
@@ -160,7 +160,7 @@ func SolvePart2(input Input) int {
 	assert.True(ok)
 
 	if lib.LogLevel >= lib.LogDebug {
-		rowcol.PrintByteGrid(&grid)
+		rowcol.PrintByteGrid(grid)
 	}
 
 	solver := P2Solver{grid}
@@ -170,7 +170,7 @@ func SolvePart2(input Input) int {
 
 		if modified && lib.LogLevel >= lib.LogDebug {
 			fmt.Printf("Instruction %d: %v\n", (i + 1), d)
-			rowcol.PrintByteGrid(&grid)
+			rowcol.PrintByteGrid(grid)
 		}
 		_ = modified
 	}

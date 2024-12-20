@@ -16,11 +16,34 @@ func main() {
 	flag.Parse()
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day20/example.txt")
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day20/input.txt")
-	//
-	//lib.Timed("Part 2", ProcessPart2, "aoc24/day20/example.txt")
-	//lib.Timed("Part 2", ProcessPart2, "aoc24/day20/input.txt")
+
+	//drawPar2Expand()
+
+	//lib.LogLevel = lib.LogDebug
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day20/example.txt")
+	//lib.LogLevel = lib.LogInfo
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day20/input.txt")
 
 	//lib.Profile(1, "day20.pprof", "Part 2", ProcessPart2, "aoc24/day20/input.txt")
+}
+
+func drawPar2Expand() {
+	grid := rowcol.NewGrid[byte](50, 50)
+	grid.Reset(' ')
+	start := rowcol.PosXY(25, 25)
+	grid.SetPos(start, 'S')
+	for _, dir := range rowcol.Directions {
+		for cheatLen := 2; cheatLen <= 20; cheatLen++ {
+			for p2len := 0; p2len < cheatLen; p2len++ {
+				p1len := cheatLen - p2len
+				dir2 := dir.Right()
+				end := start.Add(dir.MulS(p1len)).Add(dir2.MulS(p2len))
+				assert.True(grid.GetPos(end) == ' ')
+				grid.SetPos(end, '#')
+			}
+		}
+	}
+	rowcol.PrintByteGrid(grid)
 }
 
 func ProcessPart1(name string) {
@@ -68,6 +91,7 @@ func createDistanceMap(grid rowcol.Grid[byte]) rowcol.Grid[int] {
 	end := grid.MustFindFirst(func(v byte) bool { return v == 'E' })
 	distances := rowcol.NewGrid[int](grid.Size())
 	distances.Reset(-1)
+	distances.SetPos(start, 0)
 	prev, cur := start, start
 	next := findNext(grid, prev, cur)
 	dist := 1
@@ -77,6 +101,7 @@ func createDistanceMap(grid rowcol.Grid[byte]) rowcol.Grid[int] {
 		prev, cur = cur, next
 		next = findNext(grid, prev, cur)
 	}
+	distances.SetPos(end, dist)
 	return distances
 }
 
@@ -121,13 +146,11 @@ func (in Input) findCheats(pos rowcol.Pos) {
 }
 
 func (in Input) findCheatsDir(pos rowcol.Pos, dir rowcol.Direction) {
-	wall := pos.AddDir(dir)
-	end := wall.AddDir(dir)
-	d := in.distances
-	if !d.IsValidPos(end) {
+	end := pos.AddDir(dir).AddDir(dir)
+	if !in.grid.IsValidPos(end) {
 		return
 	}
-	if in.grid.GetPos(wall) != '#' {
+	if in.grid.GetPos(end) != '.' {
 		return
 	}
 	startDist := in.distances.GetPos(pos)
@@ -146,5 +169,61 @@ func (in Input) findCheatsDir(pos rowcol.Pos, dir rowcol.Direction) {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(input Input) int {
-	return 0
+	for pos, distance := range input.distances.Iterator() {
+		if distance == -1 {
+			continue
+		}
+		input.findCheatsPart2(pos)
+	}
+	entries := lib.MapEntries(input.savings)
+	slices.SortFunc(entries, func(a, b lib.Entry[int, int]) int {
+		return a.Key - b.Key
+	})
+	over100 := 0
+	for _, entry := range entries {
+		if entry.Key >= 50 && lib.LogLevel >= lib.LogDebug {
+			fmt.Printf("%d cheats with saving of %d\n", entry.Value, entry.Key)
+		}
+		if entry.Key >= 100 {
+			over100 += entry.Value
+		}
+	}
+
+	return over100
+}
+
+func (in Input) findCheatsPart2(start rowcol.Pos) {
+	// 4 quadrants
+	// left+up
+	// up+right
+	// right+down
+	// down+left
+	for _, dir := range rowcol.Directions {
+		for cheatLen := 2; cheatLen <= 20; cheatLen++ {
+			for p2len := 0; p2len < cheatLen; p2len++ {
+				p1len := cheatLen - p2len
+				dir2 := dir.Right()
+				end := start.Add(dir.MulS(p1len)).Add(dir2.MulS(p2len))
+				in.checkPart2Cheat(start, end, cheatLen)
+			}
+		}
+	}
+}
+
+func (in Input) checkPart2Cheat(start, end rowcol.Pos, cheatLen int) {
+	if !in.grid.IsValidPos(end) {
+		return
+	}
+	if in.grid.GetPos(end) != '.' && in.grid.GetPos(end) != 'E' {
+		return
+	}
+	startDist := in.distances.GetPos(start)
+	endDist := in.distances.GetPos(end)
+	assert.True(startDist >= 0)
+	assert.True(endDist >= 0)
+	saving := endDist - startDist - cheatLen
+	if saving <= 0 {
+		return
+	}
+	in.savings[saving]++
 }

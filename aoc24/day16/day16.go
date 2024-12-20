@@ -150,7 +150,7 @@ func SolvePart1(input Input) int {
 			fmt.Printf("Position %d: %v, facing: %v\n", i, key.P, key.Facing)
 			g.SetPos(key.P, key.Facing.PrintChar())
 		}
-		rowcol.PrintByteGrid(&g)
+		rowcol.PrintByteGrid(g)
 	}
 
 	return minScore.Distance

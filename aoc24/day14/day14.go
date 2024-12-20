@@ -173,7 +173,7 @@ func render(input Input, xmax, ymax int) {
 	for _, robot := range input.robots {
 		grid.SetPos(robot.P, '#')
 	}
-	rowcol.PrintByteGrid(&grid)
+	rowcol.PrintByteGrid(grid)
 }
 
 func (in *Input) AnalyseLoops(xmax int, ymax int) int {
