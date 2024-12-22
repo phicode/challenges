@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/phicode/challenges/lib"
+	"github.com/phicode/challenges/lib/assert"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day22/example.txt")
 	lib.Timed("Part 1", ProcessPart1, "aoc24/day22/input.txt")
 
-	lib.Timed("Part 2", ProcessPart2, "aoc24/day22/example.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc24/day22/example2.txt")
 	lib.Timed("Part 2", ProcessPart2, "aoc24/day22/input.txt")
 
 	//lib.Profile(1, "day22.pprof", "Part 2", ProcessPart2, "aoc24/day22/input.txt")
@@ -86,23 +87,68 @@ func SecretNumber2000(n int) int {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(input Input) int {
+	wins := make(map[int]int)
 	for _, n := range input.Numbers {
-		if i := HasLoop(n, 2000); i != -1 {
-			fmt.Println("Found loop:", n, i)
+		FindWins(n, wins)
+	}
+	maxbananas := 0
+	maxcomb := 0
+	for k, v := range wins {
+		if v > maxbananas {
+			maxbananas = v
+			maxcomb = k
 		}
 	}
-	return 0
+	if lib.LogLevel >= lib.LogDebug {
+		PrintCombo(maxcomb)
+	}
+	return maxbananas
 }
 
-func HasLoop(n int, maxIter int) int {
-	mem := make(map[int]bool)
-	mem[n] = true
-	for i := 0; i < maxIter; i++ {
+func FindWins(n int, wins map[int]int) {
+	// changes
+	var c1, c2, c3, c4 int
+	var prevLastDigit int = n % 10
+	usedCombinations := make(map[int]bool)
+	for i := 1; i <= 2000; i++ {
 		n = NextSecretNumber(n)
-		if mem[n] {
-			return i
+		lastDigit := n % 10
+		change := lastDigit - prevLastDigit
+		c1, c2, c3, c4 = c2, c3, c4, change
+		prevLastDigit = lastDigit
+		if i >= 4 {
+			k := combinationKey(c1, c2, c3, c4)
+			if !usedCombinations[k] {
+				wins[k] += lastDigit
+				usedCombinations[k] = true
+			}
 		}
-		mem[n] = true
 	}
-	return -1
+}
+
+func combinationKey(c1, c2, c3, c4 int) int {
+	assert.True(c1 >= -9 && c1 <= 9)
+	assert.True(c2 >= -9 && c2 <= 9)
+	assert.True(c3 >= -9 && c3 <= 9)
+	assert.True(c4 >= -9 && c4 <= 9)
+
+	c1 += 9 // -9 - +9 => 0-18 -> 5 bits
+	c2 += 9
+	c3 += 9
+	c4 += 9
+	// 19^4=130321 combinations
+	return c1 + (c2 << 5) + (c3 << 10) + (c4 << 15)
+}
+
+func decodeKey(x int) (int, int, int, int) {
+	c1 := (x & 0b11111) - 9
+	c2 := ((x >> 5) & 0b11111) - 9
+	c3 := ((x >> 10) & 0b11111) - 9
+	c4 := ((x >> 15) & 0b11111) - 9
+	return c1, c2, c3, c4
+}
+
+func PrintCombo(comb int) {
+	c1, c2, c3, c4 := decodeKey(comb)
+	fmt.Println("combination:", c1, c2, c3, c4)
 }
