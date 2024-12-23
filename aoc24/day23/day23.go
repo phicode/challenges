@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/phicode/challenges/lib"
@@ -90,20 +91,30 @@ func ParseInput(lines []string) Input {
 ////////////////////////////////////////////////////////////
 
 func SolvePart1(input Input) int {
-	groups := make(map[string]bool)
+	groups := ExtractGroupsOf3(input)
 	withT := 0
+	for _, group := range groups {
+		if group.HasT {
+			withT++
+		}
+	}
+	return withT
+}
+
+func ExtractGroupsOf3(input Input) map[string]*Group {
+	groups := make(map[string]*Group)
 	for _, a := range input.Nodes {
 		for i, b := range a.Neigh {
 			for j, c := range a.Neigh {
 				if i != j {
 					if b.HasNeighbor(c) {
 						ga, gb, gc := Sort3(a, b, c)
-						startWithT := ga.Name[0] == 't' || gb.Name[0] == 't' || gc.Name[0] == 't'
+						hasT := ga.Name[0] == 't' || gb.Name[0] == 't' || gc.Name[0] == 't'
 						name := GroupName(ga, gb, gc)
-						if !groups[name] {
-							groups[name] = true
-							if startWithT {
-								withT++
+						if groups[name] == nil {
+							groups[name] = &Group{
+								Nodes: []*Node{a, b, c},
+								HasT:  hasT,
 							}
 						}
 					}
@@ -111,22 +122,12 @@ func SolvePart1(input Input) int {
 			}
 		}
 	}
-	//fmt.Println(len(groups))
-	//fmt.Println(withT)
-	return withT
+	return groups
 }
 
 type Group struct {
 	Nodes []*Node
-}
-
-func (g Group) Add(n *Node) {
-	for _, other := range g.Nodes {
-		if n.Name == other.Name {
-			return
-		}
-	}
-	g.Nodes = append(g.Nodes, n)
+	HasT  bool
 }
 
 func GroupName(a, b, c *Node) string {
@@ -146,12 +147,45 @@ func Sort3(a, b, c *Node) (*Node, *Node, *Node) {
 	return a, c, b
 }
 
-func IsGroup(b *Node, c *Node) bool {
-	return b.HasNeighbor(c)
-}
-
 ////////////////////////////////////////////////////////////
 
-func SolvePart2(input Input) int {
-	return 0
+func SolvePart2(input Input) string {
+	name := ""
+	groups := ExtractGroupsOf3(input)
+	for _, group := range groups {
+		ExpandGroup(group, input.Nodes)
+		n := group.Name()
+		if len(n) > len(name) {
+			name = n
+		}
+	}
+	return name
+}
+
+func ExpandGroup(group *Group, nodes map[string]*Node) {
+	for _, n := range nodes {
+		group.Growgroup(n)
+	}
+}
+
+func (g *Group) Growgroup(n *Node) {
+	// node n must be neighbor with all current group members
+	for _, groupMember := range g.Nodes {
+		if groupMember.Name == n.Name {
+			return
+		}
+		if !groupMember.HasNeighbor(n) {
+			return
+		}
+	}
+	g.Nodes = append(g.Nodes, n)
+}
+
+func (g *Group) Name() string {
+	nodeNames := make([]string, len(g.Nodes))
+	for i, node := range g.Nodes {
+		nodeNames[i] = node.Name
+	}
+	sort.Strings(nodeNames)
+	return strings.Join(nodeNames, ",")
 }
