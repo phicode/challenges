@@ -92,5 +92,48 @@ func resolve(pos int, m int) int {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(input Input) int {
-	return 0
+	pos := 50
+	password := 0
+	for _, m := range input.moves {
+		var zeros int
+		//before := pos
+		pos, zeros = resolve2(pos, m)
+		//fmt.Printf("%d - %d+%d=%d, zeros=%d\n", i, before, m, pos, zeros)
+		password += zeros
+	}
+	return password
+}
+
+func resolve2(pos int, m int) (int, int) {
+	zeros := 0
+	for m >= 100 {
+		m -= 100
+		zeros++
+	}
+	for m <= -100 {
+		m += 100
+		zeros++
+	}
+	if m == 0 {
+		return pos, zeros
+	}
+	end := pos + m
+	if end == 100 {
+		return 0, zeros + 1
+	}
+	if end > 99 {
+		end -= 100
+		zeros++
+	}
+	if end < 0 {
+		end += 100
+		if pos == 0 {
+			return end, zeros
+		}
+		return end, zeros + 1
+	}
+	if end == 0 {
+		zeros++
+	}
+	return end, zeros
 }
