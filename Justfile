@@ -19,3 +19,11 @@ build:
 
 test:
   go test github.com/phicode/challenges/...
+
+src: src-format src-fix
+
+src-format:
+  go fmt $(go list ./...)
+
+src-fix:
+  go fix $(go list ./...)
