@@ -104,36 +104,32 @@ func SolvePart2(input Input) int {
 	return password
 }
 
+// right:
+//
+//	from 5+99=104%100=4
+//
+// left:
+//
+//	5-5=0 , 0%100=0, 1
+//	0-5=95, 0 = 0, 0
+//	1-5=96, 1 = 1
 func resolve2(pos int, m int) (int, int) {
-	zeros := 0
-	for m >= 100 {
-		m -= 100
-		zeros++
-	}
-	for m <= -100 {
-		m += 100
-		zeros++
-	}
-	if m == 0 {
-		return pos, zeros
-	}
 	end := pos + m
-	if end == 100 {
-		return 0, zeros + 1
-	}
-	if end > 99 {
-		end -= 100
-		zeros++
+	if end > 0 {
+		rounds := end / 100
+		end -= (rounds * 100)
+		return end, rounds
 	}
 	if end < 0 {
-		end += 100
-		if pos == 0 {
-			return end, zeros
+		rounds := -(end / 100)
+		end += (rounds * 100)
+		if end < 0 {
+			end += 100
 		}
-		return end, zeros + 1
+		if pos > 0 {
+			rounds++
+		}
+		return end, rounds
 	}
-	if end == 0 {
-		zeros++
-	}
-	return end, zeros
+	return 0, 1
 }
