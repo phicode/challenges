@@ -16,14 +16,17 @@ func PosXY(x, y int) Pos {
 func (p Pos) AddDir(dir Direction) Pos {
 	return Pos{Row: p.Row + dir.Row, Col: p.Col + dir.Col}
 }
-func (p Pos) Add(b Pos) Pos         { return Pos{Row: p.Row + b.Row, Col: p.Col + b.Col} }
-func (p Pos) AddS(row, col int) Pos { return Pos{Row: p.Row + row, Col: p.Col + col} }
-func (p Pos) Sub(b Pos) Pos         { return Pos{Row: p.Row - b.Row, Col: p.Col - b.Col} }
-func (p Pos) Reverse() Pos          { return Pos{Row: -p.Row, Col: -p.Col} }
-func (p Pos) Right() Pos            { return Pos{Row: p.Col, Col: -p.Row} }
-func (p Pos) Left() Pos             { return Pos{Row: -p.Col, Col: p.Row} }
-func (p Pos) IsZero() bool          { return p.Row == 0 && p.Col == 0 }
-func (p Pos) Abs() Pos              { return Pos{Row: abs(p.Row), Col: abs(p.Col)} }
+func (p Pos) Add(b Pos) Pos { return Pos{Row: p.Row + b.Row, Col: p.Col + b.Col} }
+
+// TODO: remove AddS and replace by AddRC or AddXY
+func (p Pos) AddS(row, col int) Pos  { return Pos{Row: p.Row + row, Col: p.Col + col} }
+func (p Pos) AddRC(row, col int) Pos { return Pos{Row: p.Row + row, Col: p.Col + col} }
+func (p Pos) Sub(b Pos) Pos          { return Pos{Row: p.Row - b.Row, Col: p.Col - b.Col} }
+func (p Pos) Reverse() Pos           { return Pos{Row: -p.Row, Col: -p.Col} }
+func (p Pos) Right() Pos             { return Pos{Row: p.Col, Col: -p.Row} }
+func (p Pos) Left() Pos              { return Pos{Row: -p.Col, Col: p.Row} }
+func (p Pos) IsZero() bool           { return p.Row == 0 && p.Col == 0 }
+func (p Pos) Abs() Pos               { return Pos{Row: abs(p.Row), Col: abs(p.Col)} }
 
 // Position in Col, Row (analog to X, Y)
 func (p Pos) String() string { return fmt.Sprintf("(%d,%d)", p.Col, p.Row) }
