@@ -45,6 +45,14 @@ func (r Range) contains(i int) bool {
 	return i >= r.a && i <= r.b
 }
 
+func (r Range) isZero() bool {
+	return r.a == 0 && r.b == 0
+}
+
+func (r Range) String() string {
+	return fmt.Sprintf("%d-%d", r.a, r.b)
+}
+
 type Input struct {
 	ranges []Range
 	ids    []int
@@ -115,5 +123,62 @@ func SolvePart1(input Input) int {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(input Input) int {
-	return 0
+	rs := mergeAll(input.ranges)
+	validateNoOverlap(rs)
+	total := 0
+	for _, r := range rs {
+		total += r.b - r.a + 1
+	}
+	return total
+}
+
+func validateNoOverlap(rs []Range) {
+	for i, a := range rs {
+		for j, b := range rs[i+1:] {
+			if overlap(a, b) {
+				panic(fmt.Errorf("overlap found: (%d, %d) = %v, %v", i, i+j+1, a, b))
+			}
+		}
+	}
+}
+
+func overlap(a, b Range) bool {
+	if a.b < b.a || a.a > b.b {
+		return false
+	}
+	return true
+}
+
+func mergeAll(rs []Range) []Range {
+	var rv []Range
+	for i, r := range rs {
+		if r.isZero() { // already merged
+			continue
+		}
+
+		for j := i + 1; j < len(rs); j++ {
+			if rs[j].isZero() {
+				continue
+			}
+			if merged, m := merge(r, rs[j]); merged {
+				//fmt.Printf("merged %v + %v = %v\n", r, rs[j], m)
+				r = m
+				rs[j] = Range{} // zero out merged entry
+				// if we merge any entry, we have to search for new candidates from the beginning
+				j = i
+			}
+		}
+		rv = append(rv, r)
+	}
+	return rv
+}
+
+func merge(a, b Range) (bool, Range) {
+	if a.b < b.a || a.a > b.b {
+		return false, Range{}
+	}
+	return true, Range{
+		a: min(a.a, b.a),
+		b: max(a.b, b.b),
+	}
 }
