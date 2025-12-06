@@ -30,7 +30,7 @@ func ProcessPart1(name string) {
 
 func ProcessPart2(name string) {
 	fmt.Println("Part 2 input:", name)
-	input := ReadAndParseInput(name)
+	input := ReadAndParseInputPart2(name)
 	result := SolvePart2(input)
 	fmt.Println("Result:", result)
 }
@@ -77,6 +77,11 @@ type Input struct {
 func ReadAndParseInput(name string) Input {
 	lines := lib.ReadLines(name)
 	return ParseInput(lines)
+}
+
+func ReadAndParseInputPart2(name string) Input {
+	lines := lib.ReadLines(name)
+	return ParseInputPart2(lines)
 }
 
 func ParseInput(lines []string) Input {
@@ -136,6 +141,121 @@ func SolvePart1(input Input) int {
 
 ////////////////////////////////////////////////////////////
 
+type NumberGrid [][]byte
+
+func (g NumberGrid) String() string {
+	var sb strings.Builder
+	for i, row := range g {
+		if i > 0 {
+			sb.WriteRune('\n')
+		}
+		sb.WriteString(string(row))
+	}
+	return sb.String()
+}
+
+func (g NumberGrid) Numbers() int {
+	return len(g[0])
+}
+
+func (g NumberGrid) Number(i int) int {
+	var acc int
+	for _, row := range g {
+		v := row[i]
+		if v == ' ' {
+			continue
+		}
+		acc *= 10
+		acc += d(v)
+	}
+	return acc
+}
+
+func d(x byte) int {
+	return int(x - '0')
+}
+
+func ParseInputPart2(lines []string) Input {
+	// remove empty end lines
+	for l := len(lines); l > 0 && lines[l-1] == ""; {
+		lines = lines[:l-1]
+	}
+	ops := lines[len(lines)-1]
+	lines = lines[:len(lines)-1]
+	allOps := strings.Fields(ops)
+
+	numberGrids := splitNumberGrids(lines)
+
+	//for _, numberGrid := range numberGrids {
+	//	fmt.Println(numberGrid.String())
+	//	fmt.Println("---------------------------")
+	//}
+	var rv Input
+	for i, numberGrid := range numberGrids {
+		var p Problem
+		op, found := operations[allOps[i]]
+		if !found {
+			panic(fmt.Errorf("no operation found for input %q", allOps[i]))
+		}
+		p.op = op
+		n := numberGrid.Numbers()
+		p.nums = make([]int, n)
+		for j := 0; j < n; j++ {
+			p.nums[j] = numberGrid.Number(j)
+		}
+		rv.problems = append(rv.problems, p)
+	}
+	return rv
+}
+
+func _max(a, b int) int {
+	return max(a, b)
+}
+func _len(xs string) int {
+	return len(xs)
+}
+
+func splitNumberGrids(lines []string) []NumberGrid {
+	var all []NumberGrid
+	current := make(NumberGrid, len(lines))
+	maxlen := lib.Reduce(lib.Map(lines, _len), _max, 0)
+	for i := 0; i < maxlen; i++ {
+		if allspace(lines, i) {
+			// start of new number grid
+			all = append(all, current)
+			current = make(NumberGrid, len(lines))
+			continue
+		}
+		for j, line := range lines {
+			var digit byte
+			if len(line) <= i {
+				digit = ' '
+			} else {
+				digit = line[i]
+			}
+			current[j] = append(current[j], digit)
+		}
+
+	}
+	all = append(all, current)
+	return all
+}
+
+func allspace(lines []string, i int) bool {
+	for _, line := range lines {
+		if i >= len(line) || line[i] != ' ' {
+			return false
+		}
+	}
+	return true
+}
+
 func SolvePart2(input Input) int {
-	return 0
+	total := 0
+	for _, problem := range input.problems {
+		n := problem.Solve()
+		//fmt.Println(n)
+		total += n
+	}
+	return total
 }
