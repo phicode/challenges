@@ -100,5 +100,33 @@ func follow(g rowcol.Grid[byte], current rowcol.Pos) int {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(input Input) int {
-	return 0
+	grid := input.grid
+	current := grid.MustFindFirst(func(x byte) bool { return x == START })
+	mem := rowcol.NewGrid[int](grid.Size())
+	splits := follow2(grid, mem, current.AddDir(rowcol.Down))
+	return splits
+}
+
+func follow2(g rowcol.Grid[byte], mem rowcol.Grid[int], current rowcol.Pos) int {
+	if !g.IsValidPos(current) {
+		return 1
+	}
+	if m := mem.GetPos(current); m > 0 {
+		return m
+	}
+	cell := g.GetPos(current)
+	switch cell {
+	case FREE:
+		m := follow2(g, mem, current.AddDir(rowcol.Down))
+		mem.SetPos(current, m)
+		return m
+	case SPLITTER:
+		left := current.AddDir(rowcol.Left)
+		right := current.AddDir(rowcol.Right)
+		m := follow2(g, mem, left) + follow2(g, mem, right)
+		mem.SetPos(current, m)
+		return m
+	default:
+		panic(fmt.Errorf("invalid cell value: %v", cell))
+	}
 }
