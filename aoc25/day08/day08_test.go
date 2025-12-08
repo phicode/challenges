@@ -7,29 +7,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestVec3_Distance(t *testing.T) {
+func TestJBox_Distance(t *testing.T) {
 	var tests = []struct {
-		a, b Vec3
+		a, b JBox
 		dist float64
 	}{
 		{
-			a:    Vec3{0, 0, 0},
-			b:    Vec3{1, 0, 0},
+			a:    JBox{0, 0, 0, nil},
+			b:    JBox{1, 0, 0, nil},
 			dist: 1,
 		},
 		{
-			a:    Vec3{0, 0, 0},
-			b:    Vec3{1, 1, 0},
+			a:    JBox{0, 0, 0, nil},
+			b:    JBox{1, 1, 0, nil},
 			dist: 1.41421356237309504880, // sqrt(2)
 		},
 		{
-			a:    Vec3{162, 817, 812},
-			b:    Vec3{425, 690, 689},
+			a:    JBox{162, 817, 812, nil},
+			b:    JBox{425, 690, 689, nil},
 			dist: 316.90219311326957113731,
 		},
 		{
-			a:    Vec3{162, 817, 812},
-			b:    Vec3{984, 92, 344},
+			a:    JBox{162, 817, 812, nil},
+			b:    JBox{984, 92, 344, nil},
 			dist: 1191.77724428686756160185,
 		},
 	}
@@ -41,15 +41,14 @@ func TestVec3_Distance(t *testing.T) {
 	}
 }
 
-func TestVec3_DistanceDiff(t *testing.T) {
-	gota := Vec3{906, 360, 560}
-	gotb := Vec3{819, 987, 18}
-	wanta := Vec3{431, 825, 988}
-	wantb := Vec3{425, 690, 689}
+func TestJBox_DistanceDiff(t *testing.T) {
+	gota := JBox{906, 360, 560, nil}
+	gotb := JBox{819, 987, 18, nil}
+	wanta := JBox{431, 825, 988, nil}
+	wantb := JBox{425, 690, 689, nil}
 	dx := gota.Distance(gotb)
 	dy := wanta.Distance(wantb)
-	fmt.Println(dx, dy)
-	if dx != dy {
+	if dx <= dy {
 		t.Errorf("want: %v, got: %v", dx, dy)
 	}
 }

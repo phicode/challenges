@@ -40,32 +40,34 @@ func ProcessPart2(name string) {
 
 ////////////////////////////////////////////////////////////
 
-type Vec3 struct {
+// junction box
+type JBox struct {
 	X, Y, Z int
 	C       *Circuit
 }
 
-func (a Vec3) Sub(b Vec3) Vec3         { return Vec3{a.X - b.X, a.Y - b.Y, a.Z - b.Z, nil} }
-func (a Vec3) Distance(b Vec3) float64 { return a.Sub(b).Length() }
-func (a Vec3) Length() float64         { return math.Sqrt(float64(a.X*a.X + a.Y*a.Y + a.Z*a.Z)) }
-func (a Vec3) String() string          { return fmt.Sprintf("(%d,%d,%d)", a.X, a.Y, a.Z) }
+func (a JBox) Distance(b JBox) float64 {
+	x, y, z := a.X-b.X, a.Y-b.Y, a.Z-b.Z
+	return math.Sqrt(float64(x*x + y*y + z*z))
+}
+
+func (a JBox) String() string { return fmt.Sprintf("(%d,%d,%d)", a.X, a.Y, a.Z) }
 
 type Circuit struct {
-	boxes []*Vec3
+	boxes []*JBox
 }
 
 type Distance struct {
 	dist float64
-	a, b *Vec3
+	a, b *JBox
 }
 
 type Input struct {
-	boxes []*Vec3
-	//boxCircuits map[Vec3]*Circuit
+	boxes    []*JBox
 	circuits []*Circuit
 }
 
-func (i *Input) Connect(a, b *Vec3) {
+func (i *Input) Connect(a, b *JBox) {
 	ca, cb := a.C, b.C
 	founda, foundb := ca != nil, cb != nil
 	switch {
@@ -113,7 +115,7 @@ func (i *Input) validate() {
 			}
 		}
 	}
-	boxesWithoutCircuit := lib.Reduce(i.boxes, 0, func(b *Vec3, acc int) int {
+	boxesWithoutCircuit := lib.Reduce(i.boxes, 0, func(b *JBox, acc int) int {
 		if b.C == nil {
 			return acc + 1
 		}
@@ -130,9 +132,9 @@ func ReadAndParseInput(name string) Input {
 }
 
 func ParseInput(lines []string) Input {
-	var boxes []*Vec3
+	var boxes []*JBox
 	for _, line := range lines {
-		v := new(Vec3)
+		v := new(JBox)
 		n, err := fmt.Sscanf(line, "%d,%d,%d", &v.X, &v.Y, &v.Z)
 		if n != 3 || err != nil {
 			panic(fmt.Errorf("vector parsing error: n=%d, err=%v", n, err))
@@ -142,7 +144,6 @@ func ParseInput(lines []string) Input {
 
 	return Input{
 		boxes: boxes,
-		//boxCircuits: make(map[Vec3]*Circuit),
 	}
 }
 
@@ -168,7 +169,7 @@ func SolvePart1(input Input, loops int) int {
 	return lens[0] * lens[1] * lens[2]
 }
 
-func BuildDistances(boxes []*Vec3) []Distance {
+func BuildDistances(boxes []*JBox) []Distance {
 	l := len(boxes)
 	var rv []Distance
 	for i := 0; i < l-1; i++ {
