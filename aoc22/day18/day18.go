@@ -109,7 +109,7 @@ type Filler struct {
 }
 
 func NewFiller(ps []Position) *Filler {
-	_max := lib.Reduce(ps, MaxPos, Position{})
+	_max := lib.Reduce(ps, Position{}, MaxPos)
 	c := NewCube[State](_max)
 	for _, p := range ps {
 		c.Set(p, Voxel) // contains a voxel

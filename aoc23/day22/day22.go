@@ -327,8 +327,8 @@ func (s Space) DrawYZ() {
 func Draw(ps []V2L) {
 	// A is the X dimension of the display coordinate system.
 	// B is the Y dimension of the display coordinate system.
-	xmax := lib.Reduce(ps, MaxA, 0)
-	ymax := lib.Reduce(ps, MaxB, 0)
+	xmax := lib.Reduce(ps, 0, MaxA)
+	ymax := lib.Reduce(ps, 0, MaxB)
 
 	for y := ymax; y > 0; y-- {
 		for x := 0; x <= xmax; x++ {

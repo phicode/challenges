@@ -218,7 +218,7 @@ func _len(xs string) int {
 func splitNumberGrids(lines []string) []NumberGrid {
 	var all []NumberGrid
 	current := make(NumberGrid, len(lines))
-	maxlen := lib.Reduce(lib.Map(lines, _len), _max, 0)
+	maxlen := lib.Reduce(lib.Map(lines, _len), 0, _max)
 	for i := 0; i < maxlen; i++ {
 		if allspace(lines, i) {
 			// start of new number grid
