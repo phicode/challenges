@@ -18,8 +18,8 @@ func main() {
 	lib.TimedFunc("Part 1", func() { ProcessPart1("aoc25/day08/input.txt", 1000) })
 	//lib.TimedFunc("Part 1", func() { ProcessPart1("aoc25/day08/example.txt", 1000) })
 	//
-	//lib.Timed("Part 2", ProcessPart2, "aoc25/day08/example.txt")
-	//lib.Timed("Part 2", ProcessPart2, "aoc25/day08/input.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc25/day08/example.txt")
+	lib.Timed("Part 2", ProcessPart2, "aoc25/day08/input.txt")
 
 	//lib.Profile(1, "day08.pprof", "Part 2", ProcessPart2, "aoc25/day08/input.txt")
 }
@@ -196,5 +196,18 @@ func RemoveIdx[T any](ts []T, i int) []T {
 ////////////////////////////////////////////////////////////
 
 func SolvePart2(input Input) int {
+	distances := BuildDistances(input.boxes)
+	connected := 0
+	for _, dist := range distances {
+		//fmt.Printf("connecting: %v, %v d=%f\n", dist.a, dist.b, dist.dist)
+		input.Connect(dist.a, dist.b)
+		connected++
+		input.validate()
+		if len(input.circuits) == 1 && len(input.circuits[0].boxes) == len(input.boxes) {
+			//fmt.Println("all boxes connected after", connected, "lines")
+			//fmt.Printf("last connected: %v, %v d=%f\n", dist.a, dist.b, dist.dist)
+			return dist.a.X * dist.b.X
+		}
+	}
 	return 0
 }
